@@ -1,0 +1,139 @@
+parser: "babel-eslint"
+
+parserOptions:
+    sourceType: 'module'
+
+env:
+  es6: true
+  node: true
+  browser: true
+
+rules:
+    array-bracket-spacing: "error"
+    array-callback-return: "error"
+    arrow-body-style: ["error", "as-needed"]
+    arrow-parens: 0
+    arrow-spacing: "error"
+    indent: ["error", 2, {SwitchCase: 1}]
+    block-spacing: "error"
+    brace-style: ["error", "1tbs"]
+    camelcase: "error"
+    callback-return: ["error", ["cb", "callback", "next"]]
+    class-methods-use-this: "error"
+    comma-dangle: "error"
+    comma-spacing: "error"
+    comma-style: ["error", "last"]
+    computed-property-spacing: "error"
+    consistent-return: "error"
+    curly: ["error", "all"]
+    default-case: "error"
+    dot-location: ["error", "property"]
+    dot-notation: ["error", { allowKeywords: true }]
+    eol-last: "error"
+    eqeqeq: "error"
+    func-call-spacing: "error"
+    generator-star-spacing: 0
+    guard-for-in: "error"
+    handle-callback-err: ["error", "err"]
+    key-spacing: ["error", { beforeColon: false, afterColon: true }]
+    keyword-spacing: "error"
+    max-statements-per-line: "error"
+    new-cap: "error"
+    no-alert: "error"
+    no-array-constructor: "error"
+    no-caller: "error"
+    no-catch-shadow: "error"
+    no-delete-var: "error"
+    no-else-return: "error"
+    no-eval: "error"
+    no-extend-native: "error"
+    no-extra-bind: "error"
+    no-fallthrough: "error"
+    no-floating-decimal: "error"
+    no-global-assign: "error"
+    no-implied-eval: "error"
+    no-invalid-this: "error"
+    no-iterator: "error"
+    no-label-var: "error"
+    no-labels: "error"
+    no-lone-blocks: "error"
+    no-loop-func: "error"
+    no-mixed-requires: "error"
+    no-mixed-spaces-and-tabs: ["error", false]
+    no-multi-str: "error"
+    no-multiple-empty-lines: ["error", {max: 2, maxBOF: 0, maxEOF: 0}]
+    no-new: "error"
+    no-new-func: "error"
+    no-new-object: "error"
+    no-new-require: "error"
+    no-new-wrappers: "error"
+    no-octal: "error"
+    no-octal-escape: "error"
+    no-path-concat: "error"
+    no-process-exit: "error"
+    no-proto: "error"
+    no-redeclare: "error"
+    no-restricted-properties: [
+        "error",
+        { property: "substring", message: "Use .slice instead of .substring." },
+        { property: "substr", message: "Use .slice instead of .substr." }
+    ]
+    no-return-assign: "error"
+    no-script-url: "error"
+    no-self-assign: "error"
+    no-self-compare: "error"
+    no-sequences: "error"
+    no-shadow-restricted-names: "error"
+    no-tabs: "error"
+    no-throw-literal: "error"
+    no-trailing-spaces: "error"
+    no-undef: ["error", {typeof: true}]
+    no-undef-init: "error"
+    no-underscore-dangle: ["error", {allowAfterThis: true}]
+    no-unmodified-loop-condition: "error"
+    no-unneeded-ternary: "error"
+    no-unused-expressions: "error"
+    no-unused-vars: ["error", {vars: "all", args: "after-used"}]
+    no-useless-call: "error"
+    no-useless-computed-key: "error"
+    no-useless-concat: "error"
+    no-useless-constructor: "error"
+    no-useless-escape: "error"
+    no-useless-rename: "error"
+    no-useless-return: "error"
+    no-whitespace-before-property: "error"
+    no-with: "error"
+    no-var: "error"
+    object-shorthand: "error"
+    one-var-declaration-per-line: "error"
+    operator-assignment: "error"
+    operator-linebreak: "error"
+    prefer-arrow-callback: "error"
+    prefer-const: "error"
+    prefer-numeric-literals: "error"
+    prefer-promise-reject-errors: "error"
+    prefer-template: "error"
+    radix: "error"
+    semi-spacing: ["error", {before: false, after: true}]
+    space-in-parens: "error"
+    space-infix-ops: "error"
+    space-unary-ops: ["error", {words: true, nonwords: false}]
+    spaced-comment: ["error", "always", { exceptions: ["-"]}]
+    strict: ["error", "global"]
+    symbol-description: "error"
+    template-curly-spacing: ["error", "never"]
+    template-tag-spacing: "error"
+    unicode-bom: "error"
+    valid-jsdoc: ["error", {
+        prefer: { "return": "returns"},
+        preferType: {
+            "String": "string",
+            "Number": "number",
+            "Boolean": "boolean",
+            "object": "Object",
+            "function": "Function"
+        }
+    }]
+    wrap-iife: "error"
+    yield-star-spacing: "error"
+    yoda: ["error", "never"]
