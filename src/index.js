@@ -1,6 +1,6 @@
 import xhrAdapter from 'adapters/xhr'
 import fetchAdapter from 'adapters/fetch'
-import { map, tap, pipe, clone, merge } from 'ramda'
+import { map, pipe, clone, merge } from 'ramda'
 import { pipeM, composeHooks, normalizeHooks } from 'utils'
 
 export const Apicase = {

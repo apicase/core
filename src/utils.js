@@ -1,4 +1,4 @@
-import { is, of, map, set, join, keys, pipe, when, assoc, curry, merge, concat, reduce, compose, isEmpty, toPairs, identity, complement } from 'ramda'
+import { is, of, map, set, join, keys, pipe, when, assoc, curry, merge, concat, reduce, isEmpty, toPairs, identity, complement } from 'ramda'
 
 const isNotEmpty = complement(isEmpty)
 const encodeParts = map(map(encodeURIComponent))
