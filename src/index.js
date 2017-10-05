@@ -41,6 +41,7 @@ export const Apicase = {
   },
   // Make a service with prepared options
   // Options from call() and all() methods will be merged with service options
+  // TODO: Improve this method and realize it without hacks
   of (base) {
     const self = this
     return {
