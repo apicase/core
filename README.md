@@ -21,9 +21,56 @@ And because of my love to Vue.js I will add shortcuts for Vue.
 ## Apicase methods
 
 ### Apicase.call(query) - make API call with options
+```javascript
+Apicase
+  .call({
+    adapter: 'fetch',
+    url: '/posts/:id/comments',
+    params: { id: 1 },
+    query: { pageId: 1 },
+    hooks: {
+      success (result, next) {
+        console.log(result)
+      },
+      error (reason, next) {
+        console.error(reason)
+      }
+    }
+  })
+  .then(console.log)
+  .catch(console.log)
+```
+For more docs about adapters and hooks, please visit docs site.
 
 ### Apicase.all(queries) - like Promise.all but takes options array
+```javascript
+Apicase
+  .all([
+    { url: '/posts/:id', params: { id: 1 } },
+    { url: '/posts/:id', params: { id: 2 } },
+    { url: '/posts/:id', params: { id: 3 } }
+  ])
+  .then(console.log)
+  .catch(console.log)
+```
 
 ### Apicase.of(base) - create service with base options
+```javascript
+const getPost = Apicase.of({ url: '/posts/:id' })
 
+Apicase
+  .call({ params: { id: 1 } })
+  .then(console.log)
+  .catch(console.log)
+
+Apicase
+  .all([
+    { params: { id: 1 } },
+    { params: { id: 2 } },
+    { params: { id: 3 } }
+  ])
+  .then(console.log)
+  .catch(console.log)
+```
+For better experience with services
 > More info in a few days later
