@@ -1,9 +1,11 @@
 import xhrAdapter from 'adapters/xhr'
 import fetchAdapter from 'adapters/fetch'
-import { map, pipe, clone, merge } from 'ramda'
+import { map, omit, pipe, clone, merge, concat, mergeWith } from 'ramda'
 import { pipeM, composeHooks, normalizeHooks } from 'utils'
 
 export const Apicase = {
+  // Base for calls
+  base: { },
   // Options
   options: {
     defaultAdapter: 'fetch'
@@ -18,14 +20,27 @@ export const Apicase = {
     this.adapters[name] = adapter
   },
   // Make API call
+  // TODO: Make it a little simpler
   async call ({
     adapter = this.options.defaultAdapter,
     hooks = {},
     ...options
   } = {}) {
-    const opts = clone(options)
-    const h = pipe(normalizeHooks, map(h => composeHooks(...h)))(hooks)
+
+    const opts = merge(
+      omit('hooks', this.base),
+      clone(options),
+      { adapter }
+    )
+
+    const h = pipe(
+      normalizeHooks,
+      mergeWith(concat, normalizeHooks(this.base.hooks)),
+      map(h => composeHooks(...h))
+    )(hooks)
+
     await h.before(opts)
+
     return new Promise((resolve, reject) => {
       this.adapters[adapter]({
         options,
@@ -34,6 +49,7 @@ export const Apicase = {
         another: (name, data, fail = false) => pipeM(h[name], ...(fail ? [reject] : []))(data)
       })
     })
+
   },
   // Like Promise.all but iteratees over calls options
   all (queries) {
@@ -43,17 +59,13 @@ export const Apicase = {
   // Options from call() and all() methods will be merged with service options
   // TODO: Improve this method and realize it without hacks
   of (base) {
-    const self = this
-    return {
-      ...self,
-      call: pipe(merge(base), self.call.bind(self)),
-      all: pipe(map(merge(base)), self.all)
-    }
+    const self = clone(this)
+    self.base = merge(self.base, base)
+    return self
   }
 }
 
-Apicase.call({
-  url: '/root/:id',
+Apicase.of({ url: '/root/:id', hooks: { before: () => {} } }).call({
   params: { id: 1 },
   hooks: {
     before: () => {},
