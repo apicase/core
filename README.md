@@ -72,5 +72,4 @@ Apicase
   .then(console.log)
   .catch(console.log)
 ```
-For better experience with services
-> More info in a few days later
+For better experience with services I'll made apicase-services (soon)
