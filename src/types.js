@@ -13,11 +13,11 @@ export type QueryPair = [string, string | number]
 
 export type QueryPairs = QueryPair[]
 
-export type Hook = (ctx: mixed, next: Function) => mixed
+export type Hook = (ctx: Object, next: Function) => void
 
 export type HooksObject = HooksT<Hook[]>
 
-export type ComposedHooks = (ctx: mixed) => Promise<mixed>
+export type ComposedHooks = (ctx: Object) => Promise<Object>
 
 export type ComposedHooksObject = HooksT<ComposedHooks>
 
