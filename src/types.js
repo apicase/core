@@ -23,6 +23,8 @@ export type ComposedHooksObject = HooksT<ComposedHooks>
 
 export type UnnormalizedHooksObject = HooksT<Hook | Hook[]>
 
+export type EventName = 'before' | 'call' | 'success' | 'error' | 'finish' | 'preinstall' | 'postinstall'
+
 export type AllOptions = {
   adapter?: string,
   hooks?: UnnormalizedHooksObject
@@ -32,8 +34,11 @@ export type Adapter<Options> = (query: {
   options: Options,
   done: (data: mixed) => void,
   fail: (reason: mixed) => void,
-  another: (hookType: string, data: mixed) => void
+  another: (hookType: string, data: mixed, reject: boolean | false) => void
 }) => void
+
+// Change Object to Apicase but solve problem with mutations
+export type Plugin = (instance: Apicase) => void
 
 export type Apicase = {
   base: {
@@ -49,9 +54,13 @@ export type Apicase = {
   use: (adapterName: string, adapter: Adapter<Object>) => void,
   call: (options: AllOptions) => Promise<mixed>,
   all: (options: AllOptions[]) => Promise<mixed>,
-  of: (options: AllOptions) => Apicase
+  of: (options: AllOptions) => Apicase,
+  install: (installer: Plugin) => void,
+  extend: (installer: Plugin) => Apicase,
+  on: (event: EventName, callback: (...args: any[]) => void) => void,
+  // For plugins
+  [string]: any
 }
-
 
 // Methods
 

@@ -63,6 +63,7 @@
   },
   "dependencies": {
     "koa-compose": "^4.0.0",
+    "nanoevents": "^1.0.2",
     "path-to-regexp": "^2.0.0",
     "ramda": "^0.24.1",
     "uglify-es-webpack-plugin": "^0.10.0"
