@@ -1,46 +1,66 @@
-import { is, of, map, set, join, keys, pipe, when, assoc, curry, merge, concat, reduce, isEmpty, toPairs, identity, complement } from 'ramda'
+// @flow
+import * as Types from './types'
+import { is, of, map, set, join, keys, pipe, when, assoc, curry, merge, concat, reduce, isEmpty, toPairs, identity, mergeWith, complement, mergeDeepRight } from 'ramda'
 
-const isNotEmpty = complement(isEmpty)
-const encodeParts = map(map(encodeURIComponent))
-const joinParts = pipe(map(join('=')), join('&'))
-const addQuestionSign = when(isNotEmpty, concat('?'))
+/* Returns true if object is not empty */
+const isNotEmpty: Types.isNotEmpty = complement(isEmpty)
 
-// Convert json to QueryString
-export const jsonToQueryString = pipe(toPairs, encodeParts, joinParts, addQuestionSign)
+/* Encode pairs of query data */
+const encodePairs: Types.encodePairs = map(map(encodeURIComponent))
 
-// Like R.over but use object in callback instead of prop
-// TODO: Looking for point-free variant
-export const overAll = curry((lens, cb, data) => set(lens, cb(data), data))
+/* Build query string from pairs of query data */
+const joinParts: Types.joinParts = pipe(map(join('=')), join('&'))
 
-// Change prop name and return object
-// TODO: Looking for point-free variant
-export const rename = curry((keyFrom, keyTo, obj) =>
+/* Adds question sign to start if QueryString is not empty */
+const addQuestionSign: Types.addQuestionSign = when(isNotEmpty, ('?'))
+
+/* Convert json to QueryString */
+export const jsonToQueryString: Types.jsonToQueryString = pipe(toPairs, encodePairs, joinParts, addQuestionSign)
+
+/* Like R.over but use object in callback instead of prop */
+export const overAll: Types.overAll = curry((lens, cb, data) =>
+  set(lens, cb(data), data)
+)
+
+/* Change prop name and return object */
+export const rename: Types.rename = curry((keyFrom, keyTo, obj) =>
   reduce((acc, key) => assoc(key === keyFrom ? keyTo : key, obj[key], acc), {}, keys(obj))
 )
 
-// Helper for adapters to evaluate dynamically declared headers
-export const evaluateHeaders = when(is(Function), h => h())
-
-// Normalize hooks
-export const normalizeHooks = pipe(
-  merge({ before: [], success: [], error: [], finished: [] }),
-  map(when(is(Function), of))
-)
-
-// Compose async functions
-// Based on koa-compose idea (https://github.com/koajs/compose)
-export const composeHooks = (...fns) => ctx =>
+/* Compose async functions. Based on koa-compose idea (https://github.com/koajs/compose) */
+export const composeHooks: Types.composeHooks = (fns) => (ctx) =>
   fns.length === 0
     ? Promise.resolve(ctx)
     : Promise.resolve(fns[0](ctx, () =>
-      composeHooks(...fns.slice(1))(ctx)
+      composeHooks(fns.slice(1))(ctx)
     ))
 
-// Like R.pipeP but work with non-Promises too
-export const pipeM = (...fns) => arg => {
+/* Like R.pipeP but work with non-Promises too */
+export const pipeM: Types.pipeM = (...fns) => (arg) => {
   const res = fns[0](arg)
   const slice = fns.slice(1)
   const next = slice.length ? pipeM(...slice) : identity
   const isPromise = typeof res === 'object' && 'then' in res
   return isPromise ? res.then(i => next(i)) : next(res)
 }
+
+/* Helper for adapters to evaluate dynamically declared headers */
+export const evaluateHeaders: Types.evaluateHeaders = when(is(Function), h => h())
+
+// BUG: ???
+/* Normalize hooks */
+export const normalizeHooks: Types.normalizeHooks = pipe(
+  merge({ before: [], success: [], error: [], finished: [] }),
+  map(when(is(Function), of))
+)
+
+/* Merging hooks */
+export const mergeHooks: Types.mergeHooks = curry((a, b) =>
+  mergeWith(concat)(normalizeHooks(a), normalizeHooks(b))
+)
+
+/* Compose object of hooks */
+export const mapComposeHooks: Types.mapComposeHooks = map(composeHooks)
+
+/* Merge options objects */
+export const mergeOptions: Types.mergeOptions = mergeDeepRight
