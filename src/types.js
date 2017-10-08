@@ -23,7 +23,7 @@ export type ComposedHooksObject = HooksT<ComposedHooks>
 
 export type UnnormalizedHooksObject = HooksT<Hook | Hook[]>
 
-export type EventName = 'before' | 'call' | 'success' | 'error' | 'finish' | 'preinstall' | 'postinstall'
+export type EventName = 'before' | 'start' | 'success' | 'error' | 'finish' | 'preinstall' | 'postinstall'
 
 export type AllOptions = {
   adapter?: string,

@@ -51,7 +51,7 @@ export const evaluateHeaders: Types.evaluateHeaders = when(is(Function), h => h(
 // BUG: ???
 /* Normalize hooks */
 export const normalizeHooks: Types.normalizeHooks = pipe(
-  merge({ before: [], success: [], error: [], finished: [] }),
+  merge({ before: [], success: [], error: [], finish: [] }),
   map(when(is(Function), of))
 )
 

@@ -56,7 +56,7 @@ export const Apicase: Types.Apicase = {
     const emit = (event: Types.EventName) => (data: mixed) => {
       switch (event) {
         case 'before':
-        case 'call':
+        case 'start':
           this.bus.emit(event, { options })
           break
         case 'success':
@@ -77,18 +77,20 @@ export const Apicase: Types.Apicase = {
       }
       return data
     }
-    emit('before')(null)
+    emit('before')()
     await h.before(query)
     return new Promise((resolve, reject) => {
-      const success = data => {
-        resolve(data)
+      const success = async data => {
         emit('finish')({ data })
+        await h.finish({ success: true, data })
+        resolve(data)
       }
-      const error = reason => {
-        resolve(reason)
+      const error = async reason => {
         emit('finish')({ reason })
+        await h.finish({ success: false, reason })
+        reject(reason)
       }
-      emit('call')(null)
+      emit('start')()
       this.adapters[adapter]({
         options: query,
         done: pipeM(emit('success'), h.success, success),
