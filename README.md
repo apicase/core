@@ -2,12 +2,14 @@
 The last API library you need.
 
 ## What is apicase-core?
-Apicase-core provides unified wrapper for any API methods. It just use adapters to convert apicase calls to %method_name% calls.
+Apicase-core provides unified wrapper for any APIs.
+
+It just use adapters to convert apicase calls to `%API_name%` calls.
 
 You probably don't need to know how to use any API library. Just get your adapter and use it!
 
 ## Available adapters
-Apicase have built-in adapters for `fetch` and `XMLHttpRequest` (named `xhr`) methods.
+Apicase has built-in adapters for `fetch` and `XMLHttpRequest` (named `xhr`) methods.
 So the next task will be to add adapters for libraries and methods like:
 - [ ] Axios
 - [ ] Socket.io (?)
@@ -76,13 +78,62 @@ Apicase
 ```
 For better experience with services I'll make apicase-services (soon)
 
+### Apicase.install(plugin) - use it for plugins
+```javascript
+Apicase.use((instance) => {
+  instance.test = 2
+})
+
+console.log(Apicase.test) // 2
+```
+
+### Apicase.extend(plugin) - like install but doesn't mutate general object
+```javascript
+const A = Apicase.extend((instance) => {
+  instance.test = 2
+})
+
+console.log(A.test)        // 2
+console.log(Apicase.test)  // undefined
+```
+
+### Apicase.on(event, handler) - apicase events handler
+```javascript
+Apicase.on('success', ({ data }) => {
+  console.log('Success', data)
+})
+
+Apicase.call({ url: '/api/posts/1' })
+// logs: 'Success' + response data
+```
+
+#### Available events
+- `before ({ options })` - on Apicase.call. Will called **before** `before hooks`
+- `call ({ options })` - before service call. Will called **before** `adapter call`
+- `success ({ data, options })` - on done called. Will called **before** `success hooks`
+- `error ({ reason, options })` - on fail called. Will called **before** `error hooks`
+- `finish ({ reason, options })` - on call finished. Will called **after all** hooks
+- `preinstall (instance)` - on installation or extending. Will called **before** `installer call`
+- `postinstall (instance)` - on installation or extending. Will called **after** `installer call`
+
+#### Custom events
+Also there is a custom event that emits on `another` call in adapter
+
+Event will has name of `custom hook` and `{ data, options }`
+
 ## Hooks
 To handle results of apicase calls I made 3 types of hooks.
+
 Hooks are using similar idea with [koa-compose](https://github.com/koajs/compose).
+
 You can pass arrays of hooks and stack it with Apicase.of method.
+
+> Soon...
 
 ## Built-in adapters
 
 ### Fetch
+> Soon...
 
 ### XHR
+> Soon...
