@@ -124,16 +124,6 @@ rules:
     template-curly-spacing: ["error", "never"]
     template-tag-spacing: "error"
     unicode-bom: "error"
-    valid-jsdoc: ["error", {
-        prefer: { "return": "returns"},
-        preferType: {
-            "String": "string",
-            "Number": "number",
-            "Boolean": "boolean",
-            "object": "Object",
-            "function": "Function"
-        }
-    }]
     wrap-iife: "error"
     yield-star-spacing: "error"
     yoda: ["error", "never"]
