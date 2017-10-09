@@ -5,8 +5,6 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-const resolve = dir => path.join(__dirname, '..', dir)
-
 module.exports = {
   devtool: 'sourcemap',
   entry: {
@@ -14,16 +12,13 @@ module.exports = {
   },
   output: {
     path: path.resolve('./dist'),
-    filename: 'bundle.js',
+    filename: 'index.js',
     library: 'Apicase',
     libraryTarget: 'umd'
   },
   resolve: {
     modules: ['node_modules', 'src'],
-    extensions: ['.js'],
-    alias: {
-      '@': resolve('src')
-    }
+    extensions: ['.js']
   },
   module: {
     loaders: [

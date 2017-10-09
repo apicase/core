@@ -6,7 +6,7 @@ import xhrAdapter from './adapters/xhr'
 import fetchAdapter from './adapters/fetch'
 import { pipeM, mergeHooks, mergeOptions, mapComposeHooks } from './utils'
 
-export const Apicase: Types.Apicase = {
+const Apicase: Types.Apicase = {
 
   // Base for calls
   base: {
@@ -127,6 +127,8 @@ export const Apicase: Types.Apicase = {
   bus: new NanoEvents
 
 }
+
+export default Apicase
 
 if (process.env.NODE_ENV === 'development') {
   console.log('[DEV] Apicase-core is available in browser console via Apicase global variable')
