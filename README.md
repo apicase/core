@@ -142,8 +142,7 @@ Options are same with fetch but with additional features
 - `query` - object with params to query string (will be added to url)
 - `data` - JSON / String / FormData. Note that `data` won't be sent on `GET` method
 - `headers` - object with request headers.
-  > Also you can pass headers function for dynamic headers.
-
+  > Also you can pass headers function for dynamic headers.  
   > For example, you can use headers function to detect auth token changes.
 - `parser` - arrayBuffer / blob / formData / json / text
 - `credentials` - omit / same-origin / include
