@@ -142,9 +142,8 @@ Options are same with fetch but with additional features
 - `query` - object with params to query string (will be added to url)
 - `data` - JSON / String / FormData. Note that `data` won't be sent on `GET` method
 - `headers` - object with request headers.
-  > Also you can pass headers function for dynamic headers.
-
-  > For example, you can use headers function to detect auth token changes.
+  - Also you can pass headers function for dynamic headers.  
+  - For example, you can use headers function to detect auth token changes.
 - `parser` - arrayBuffer / blob / formData / json / text
 - `credentials` - omit / same-origin / include
 - `cache` - default / no-store / reaload / no-cache / force-cache / only-if-cached
@@ -164,8 +163,8 @@ Options are same with fetch but with additional features
 
 #### Behaviour
 - `done` after success call with `event.currentTarget` in `data`
-  > **Success condition:** `(status >= 200 && status <= 299) || status === 304`
+  - Success condition: `(status >= 200 && status <= 299) || status === 304`
 - `fail` after failed call (or another error) with `event.currentTarget` in `reason`
 - `another('progress')` calls in `onprogress` event handler with `event` in `data`
 - `another('aborted')` calls in `onabort` event handler with `event` in `data`.
-  > **IMPORTANT**: It also **rejects** Promise (but `error` hooks won't be called).
+  - Note that it also **rejects** Promise (but `error` hooks won't be called).
