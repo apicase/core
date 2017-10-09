@@ -17,9 +17,9 @@ export type Hook = (ctx: Object, next: Function) => void
 
 export type HooksObject = HooksT<Hook[]>
 
-export type ComposedHooks = (ctx: Object) => Promise<Object>
+export type HooksComposition = (ctx: any) => Promise<any>
 
-export type ComposedHooksObject = HooksT<ComposedHooks>
+export type ComposedHooksObject = HooksT<HooksComposition>
 
 export type UnnormalizedHooksObject = HooksT<Hook | Hook[]>
 
@@ -78,7 +78,7 @@ export type overAll = (lens: Lens) => (cb: (obj: Object) => Object) => (data: Ob
 
 export type rename = (keyFrom: string, keyTo: string, obj: Object) => Object
 
-export type composeHooks = (fns: Hook[]) => ComposedHooks
+export type composeHooks = (fns: Hook[]) => (ctx: any) => Promise<any>
 
 export type pipeM = (...fns: Function[]) => (arg: mixed) => Promise <mixed>
 

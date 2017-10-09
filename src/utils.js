@@ -29,12 +29,12 @@ export const rename: Types.rename = curry((keyFrom, keyTo, obj) =>
 
 /* Compose async functions. Based on koa-compose idea (https://github.com/koajs/compose) */
 // BUG: Fix composeHooks return value
-export const composeHooks: Types.composeHooks = (fns) => (ctx) =>
+export const composeHooks: Types.composeHooks = (fns) => async (ctx) =>
   fns.length === 0
-    ? Promise.resolve(ctx)
-    : Promise.resolve(fns[0](ctx, () =>
+    ? ctx
+    : await fns[0](ctx, () =>
       composeHooks(fns.slice(1))(ctx)
-    ))
+    ) || ctx
 
 /* Like R.pipeP but work with non-Promises too */
 export const pipeM: Types.pipeM = (...fns) => (arg) => {
