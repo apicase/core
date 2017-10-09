@@ -111,7 +111,6 @@ rules:
     prefer-arrow-callback: "error"
     prefer-const: "error"
     prefer-numeric-literals: "error"
-    prefer-promise-reject-errors: "error"
     prefer-template: "error"
     radix: "error"
     semi-spacing: ["error", {before: false, after: true}]

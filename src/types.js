@@ -25,6 +25,8 @@ export type UnnormalizedHooksObject = HooksT<Hook | Hook[]>
 
 export type EventName = 'before' | 'start' | 'success' | 'error' | 'finish' | 'preinstall' | 'postinstall'
 
+export type CurriedEventBus = (event: string) => (data: any) => any
+
 export type AllOptions = {
   adapter?: string,
   hooks?: UnnormalizedHooksObject
@@ -91,3 +93,7 @@ export type mergeHooks = (a: UnnormalizedHooksObject, b: UnnormalizedHooksObject
 export type mapComposeHooks = (obj: HooksObject) => ComposedHooksObject
 
 export type mergeOptions = (...opts: Object[]) => Object
+
+export type curryBus = (bus: Object) => CurriedEventBus
+
+export type createHandler = (emit: CurriedEventBus, hooks: ComposedHooksObject) => (name: string) => (data: any) => any

@@ -1,10 +1,10 @@
 // @flow
-import { clone } from 'ramda'
+import { pipe, clone } from 'ramda'
 import * as Types from './types'
 import NanoEvents from 'nanoevents'
 import xhrAdapter from './adapters/xhr'
 import fetchAdapter from './adapters/fetch'
-import { pipeM, mergeHooks, mergeOptions, mapComposeHooks } from './utils'
+import { pipeM, curryBus, mergeHooks, mergeOptions, createHandler, mapComposeHooks } from './utils'
 
 const Apicase: Types.Apicase = {
 
@@ -49,54 +49,50 @@ const Apicase: Types.Apicase = {
   async call ({
     adapter = this.options.defaultAdapter,
     hooks = {},
-    ...options
+    ...query
   } = {}) {
-    const query = mergeOptions(this.base.query, options)
-    const h = mapComposeHooks(mergeHooks(this.base.hooks, hooks))
-    const emit = (event: Types.EventName) => (data: mixed) => {
-      switch (event) {
-        case 'before':
-        case 'start':
-          this.bus.emit(event, { options })
-          break
-        case 'success':
-          this.bus.emit(event, { data, options })
-          break
-        case 'error':
-          this.bus.emit(event, { reason: data, options })
-          break
-        case 'finish':
-          this.bus.emit(event, {
-            success: data instanceof Object && 'data' in data,
-            ...data,
-            options
-          })
-          break
-        default:
-          this.bus.emit(event, { data, options })
+
+    const h = pipe(mergeHooks, mapComposeHooks)(this.base.hooks, hooks)
+    const emit = curryBus(this.bus)
+    const options = mergeOptions(this.base.query, query)
+    const handle = createHandler(emit, h)
+
+    let isAborted = false
+    let abortReason = null
+
+    await handle('before')({
+      options,
+      abort: (reason) => {
+        isAborted = true
+        abortReason = reason
       }
-      return data
+    })
+
+    if (isAborted) {
+      emit('aborted')({ options, reason: abortReason })
+      return Promise.reject({ options, reason: abortReason })
     }
-    emit('before')()
-    await h.before(query)
-    return new Promise((resolve, reject) => {
-      const success = async data => {
-        emit('finish')({ data })
-        await h.finish({ success: true, data })
-        resolve(data)
-      }
-      const error = async reason => {
-        emit('finish')({ reason })
-        await h.finish({ success: false, reason })
-        reject(reason)
-      }
-      emit('start')()
+
+    return new Promise(async (resolve, reject) => {
+
+      const success = data => pipeM(
+        handle('finish'),
+        r => resolve(r.data)
+      )({ data, options, success: true })
+
+      const error = async reason => pipeM(
+        handle('finish'),
+        r => reject(r.reason)
+      )({ reason, options, success: true })
+
+      emit('start')({ options })
+
       this.adapters[adapter]({
-        options: query,
-        done: pipeM(emit('success'), h.success, success),
-        fail: pipeM(emit('error'), h.error, error),
+        options,
+        done: data => pipeM(handle('success'), success)({ data, options }),
+        fail: reason => pipeM(handle('error'), error)({ reason, options }),
         another: (name, data, fail = false) =>
-          pipeM(emit(name), h[name], ...(fail ? [reject] : []))(data)
+          pipeM(handle(name), ...(fail ? [reject] : []))(data)
       })
     })
   },
@@ -127,6 +123,29 @@ const Apicase: Types.Apicase = {
   bus: new NanoEvents
 
 }
+
+Apicase.call({
+  url: '/test',
+  hooks: {
+    before({ options, abort }, next) {
+      options.url = '/api/posts/1'
+      abort('test')
+      next()
+    },
+    success(ctx, next) {
+      console.log('success', ctx)
+      next()
+    },
+    error(ctx, next) {
+      console.log('error', ctx)
+      next()
+    },
+    finish(ctx, next) {
+      console.log('finish', ctx)
+      next()
+    }
+  }
+})
 
 export default Apicase
 

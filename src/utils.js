@@ -1,6 +1,6 @@
 // @flow
 import * as Types from './types'
-import { is, of, map, set, join, keys, pipe, when, assoc, curry, merge, concat, reduce, isEmpty, toPairs, identity, mergeWith, complement, mergeDeepRight } from 'ramda'
+import { is, of, map, set, flip, join, keys, pipe, when, assoc, curry, merge, concat, reduce, isEmpty, toPairs, identity, mergeWith, complement, mergeDeepRight } from 'ramda'
 
 /* Returns true if object is not empty */
 const isNotEmpty: Types.isNotEmpty = complement(isEmpty)
@@ -65,3 +65,24 @@ export const mapComposeHooks: Types.mapComposeHooks = map(composeHooks)
 
 /* Merge options objects */
 export const mergeOptions: Types.mergeOptions = mergeDeepRight
+
+/* Curry event emitter */
+export const curryBus: Types.curryBus = bus => name => (data) => {
+  bus.emit(name, data)
+  return data
+}
+
+/* Create callback for handling */
+export const createHandler: Types.createHandler = (emit, hooks) => name => async data => {
+  const queue = []
+  queue.push(emit(name))
+  if (name in hooks) {
+    queue.push(hooks[name])
+  }
+  if (name === 'finish') {
+    await pipeM(...queue.reverse())(data)
+  } else {
+    await pipeM(...queue)(data)
+  }
+  return data
+}
