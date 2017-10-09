@@ -10,16 +10,21 @@ type XHRAdapterQuery = {
   data?: Object | FormData | string | void
 }
 
+const isOk = (status: number): boolean =>
+  (status >= 200 && status <= 299) || status === 304
+
 const xhrAdapter: Adapter<XHRAdapterQuery> = ({ options, done, fail, another }) => {
   const opts = merge({ method: 'GET', body: undefined, headers: {} })(options)
   opts.headers = evaluateHeaders(opts.headers)
   const xhr = new XMLHttpRequest()
   xhr.open(opts.method, opts.url, true)
-  // $FlowFixMe
-  xhr.onload = (e) => done(JSON.parse(e.target.responseText))
-  xhr.onerror = e => fail(e)
+  xhr.onload = e =>
+    // $FlowFixMe
+    isOk(e.currentTarget.status)
+      ? done(e.currentTarget)
+      : fail(e.currentTarget)
   xhr.onprogress = e => another('progress', e)
-  xhr.onabort = e => another('aborted', e)
+  xhr.onabort = e => another('aborted', e, true)
   forEachObjIndexed(opts.headers, (value, header) =>
     xhr.setRequestHeader(header, value)
   )
