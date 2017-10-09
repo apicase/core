@@ -9,7 +9,9 @@ type FetchAdapterQuery = {
   parser?: 'json' | 'blob' | 'text' | 'formData' | 'arrayBuffer',
   params?: { [key: string]: string | number | null },
   query?: { [key: string]: string | number | null },
-  data?: Object | FormData | string | void
+  data?: Object | FormData | string | void,
+  credentials?: 'omit' | 'same-origin' | 'include',
+  cache?: 'default' | 'no-store' | 'reload' | 'no-cache' | 'force-cache' | 'only-if-cached'
 }
 
 const urlLens = lensProp('url')
@@ -27,14 +29,17 @@ const insertQueryString = converge(concat, [prop('url'), pipe(prop('query'), jso
 // IDEA: Add query options to done and fail callbacks
 const goFetch = (done, fail) => ({ url, parser, ...options}) =>
   fetch(url, options)
-    // I'm sure that Response has parser of needed type
-    // $FlowFixMe
-    .then(r => r[parser]())
-    .then(done)
+    .then(async r =>
+      r.ok
+        // I'm sure that Response has parser of needed type
+        // $FlowFixMe
+        ? done(await r[parser]())
+        : fail(r)
+    )
     .catch(fail)
 
 
-const setFetchDefaults = merge({ method: 'GET', body: undefined, headers: {}, parser: 'json', credentials: 'omit' })
+const setFetchDefaults = merge({ method: 'GET', body: undefined, headers: {}, parser: 'json', credentials: 'omit', cache: 'default' })
 
 // Combine all the above
 const fetchAdapter: Adapter<FetchAdapterQuery> = ({ options, done, fail }) => {
