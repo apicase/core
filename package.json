@@ -1,6 +1,6 @@
 {
   "name": "apicase-core",
-  "version": "0.1.0-dev-3",
+  "version": "0.1.0-dev-4",
   "description": "Core library to make API calls with any adapter",
   "author": "Anton Kosykh",
   "main": "dist/index.js",
@@ -52,7 +52,6 @@
     "karma-requirejs": "^1.1.0",
     "karma-verbose-reporter": "0.0.6",
     "karma-webpack": "^2.0.4",
-    "lodash-webpack-plugin": "^0.11.4",
     "open-browser-webpack-plugin": "0.0.5",
     "requirejs": "^2.3.5",
     "webpack": "^3.5.6",
