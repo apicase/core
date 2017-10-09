@@ -34,7 +34,7 @@ export type Adapter<Options> = (query: {
   options: Options,
   done: (data: mixed) => void,
   fail: (reason: mixed) => void,
-  another: (hookType: string, data: mixed, reject: boolean | false) => void
+  another: (hookType: string, data: mixed, reject?: boolean) => void
 }) => void
 
 // Change Object to Apicase but solve problem with mutations
