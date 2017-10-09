@@ -112,12 +112,12 @@ Apicase.call({ url: '/api/posts/1' })
 - `call ({ options })` - before service call. Will called **before** `adapter call`
 - `success ({ data, options })` - on done called. Will called **before** `success hooks`
 - `error ({ reason, options })` - on fail called. Will called **before** `error hooks`
-- `finish ({ reason, options })` - on call finished. Will called **after all** hooks
+- `finish ({ reason, options })` - on call finished. Will called **after all** `hooks`
 - `preinstall (instance)` - on installation or extending. Will called **before** `installer call`
 - `postinstall (instance)` - on installation or extending. Will called **after** `installer call`
 
 #### Custom events
-Also there is a custom event that emits on `another` call in adapter
+Also there is a custom event that emits **before** `another()` call from adapter
 
 Event will has name of `custom hook` and `{ data, options }`
 
@@ -133,7 +133,39 @@ You can pass arrays of hooks and stack it with Apicase.of method.
 ## Built-in adapters
 
 ### Fetch
-> Soon...
+
+#### Options
+Options are same with fetch but with additional features
+- `method` - request method (GET / POST / PUT / DELETE)
+- `url` - url expression (e.g. `/posts/:id`)
+- `params` - object with url params (see [path-to-regexp](https://github.com/pillarjs/path-to-regexp))
+- `query` - object with params to query string (will be added to url)
+- `data` - JSON / String / FormData. Note that `data` won't be sent on `GET` method
+- `headers` - object with request headers.
+  > Also you can pass headers function for dynamic headers.
+
+  > For example, you can use headers function to detect auth token changes.
+- `parser` - arrayBuffer / blob / formData / json / text
+- `credentials` - omit / same-origin / include
+- `cache` - default / no-store / reaload / no-cache / force-cache / only-if-cached
+
+#### Behaviour
+- `done` after success fetch and parser call with result in `data`
+- `fail` on any error (failed to fetch or failed to parse) with Error in `reason`
 
 ### XHR
-> Soon...
+
+#### Options
+- `method` - request method (GET / POST / PUT / DELETE)
+- `url` - url expression (e.g. `/posts/:id`)
+- `params` - object with url params (see [path-to-regexp](https://github.com/pillarjs/path-to-regexp))
+- `query` - object with params to query string (will be added to url)
+- `data` - JSON / String / FormData. Note that `data` won't be sent on `GET` method
+
+#### Behaviour
+- `done` after success call with `event.currentTarget` in `data`
+  > **Success condition:** `(status >= 200 && status <= 299) || status === 304`
+- `fail` after failed call (or another error) with `event.currentTarget` in `reason`
+- `another('progress')` calls in `onprogress` event handler with `event` in `data`
+- `another('aborted')` calls in `onabort` event handler with `event` in `data`.
+  > **IMPORTANT**: It also **rejects** Promise (but `error` hooks won't be called).
