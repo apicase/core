@@ -122,13 +122,40 @@ Also there is a custom event that emits **before** `another()` call from adapter
 Event will has name of `custom hook` and `{ data, options }`
 
 ## Hooks
-To handle results of apicase calls I made 3 types of hooks.
+To handle results of apicase calls I made 3 types of hooks.  
+Hooks are using [koa-compose](https://github.com/koajs/compose) mechanics.  
 
-Hooks are using similar idea with [koa-compose](https://github.com/koajs/compose).
+### Notes
+- You can pass arrays of hooks to call them in turn
+- Also hooks stack with `Apicase.of` method
+- You should call `next()` in every hook to complete query without errors
+- You can modify `ctx` by assigning values to it. Note that `ctx = smth` won't work. Also I think 
 
-You can pass arrays of hooks and stack it with Apicase.of method.
-
-> Soon...
+### Example
+```javascript
+Apicase.call({
+  url: '/api/posts',
+  hooks: {
+    before ({ options }, next) {
+      console.log(options)
+      next()
+    },
+    success ({ data }, next) {
+      console.log(data)
+      next()
+    },
+    error ({ reason }, next) {
+      console.log(reason)
+      next()
+    },
+    finish ({ success }, next) {
+      console.log(success ? 'Resolved' : 'Rejected')
+      next()
+    }
+  }
+})
+```
+> **More info later**
 
 ## Built-in adapters
 
