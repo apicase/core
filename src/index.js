@@ -124,29 +124,6 @@ const Apicase: Types.Apicase = {
 
 }
 
-Apicase.call({
-  url: '/test',
-  hooks: {
-    before({ options, abort }, next) {
-      options.url = '/api/posts/1'
-      abort('test')
-      next()
-    },
-    success(ctx, next) {
-      console.log('success', ctx)
-      next()
-    },
-    error(ctx, next) {
-      console.log('error', ctx)
-      next()
-    },
-    finish(ctx, next) {
-      console.log('finish', ctx)
-      next()
-    }
-  }
-})
-
 export default Apicase
 
 if (process.env.NODE_ENV === 'development') {
