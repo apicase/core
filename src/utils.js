@@ -1,6 +1,6 @@
 // @flow
 import * as Types from './types'
-import { is, of, map, set, flip, join, keys, pipe, when, assoc, curry, merge, concat, reduce, isEmpty, toPairs, identity, mergeWith, complement, mergeDeepRight } from 'ramda'
+import { is, of, map, set, join, keys, pipe, when, assoc, curry, merge, concat, reduce, isEmpty, toPairs, identity, mergeWith, complement, mergeDeepRight } from 'ramda'
 
 /* Returns true if object is not empty */
 const isNotEmpty: Types.isNotEmpty = complement(isEmpty)
