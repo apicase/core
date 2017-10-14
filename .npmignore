@@ -2,6 +2,4 @@
 .git*
 example/
 node_modules/
-src/
 gulp*
-dist/

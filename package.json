@@ -1,6 +1,6 @@
 {
   "name": "apicase-core",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "Core library to make API calls with any adapter",
   "author": "Anton Kosykh",
   "main": "dist/index.js",
