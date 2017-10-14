@@ -158,6 +158,8 @@ Apicase.call({
 
 ### Hooks vs events
 For better understanding of `Apicase.call` work I made that image
+
+Click on image to see in full resolution
 ![Call queue](https://2.downloader.disk.yandex.ru/disk/a34d2a17be92d5d0abee494d7dc811a45898e3fed5680dc5fe55732469794018/59e194ec/wR63RHQ0VtUVIYC_ZppuVOHsyEMMY1YBI7_JESMeljdUcE6I8_hbkXmfSI2I42mUF2YuXkqUQzYIGNBGEo6WMQ%3D%3D?uid=0&filename=lifecycle.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&fsize=608945&hid=df9ef607e7e461a6e1da6cb268ef9cae&media_type=image&tknv=v2&etag=4817ddb7c0f915aa2a16ef47eff5a61e)
 
 ## Built-in adapters
