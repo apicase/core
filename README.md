@@ -122,14 +122,14 @@ Also there is a custom event that emits **before** `another()` call from adapter
 Event will has name of `custom hook` and `{ data, options }`
 
 ## Hooks
-To handle results of apicase calls I made 3 types of hooks.  
-Hooks are using [koa-compose](https://github.com/koajs/compose) mechanics.  
+To handle results of apicase calls I made 3 types of hooks.
+Hooks are using [koa-compose](https://github.com/koajs/compose) mechanics.
 
 ### Notes
 - You can pass arrays of hooks to call them in turn
 - Also hooks stack with `Apicase.of` method
 - You should call `next()` in every hook to complete query without errors
-- You can modify `ctx` by assigning values to it. Note that `ctx = smth` won't work. Also I think 
+- You can modify `ctx` by assigning values to it. Note that `ctx = smth` won't work. Also I think
 
 ### Example
 ```javascript
@@ -169,7 +169,7 @@ Options are same with fetch but with additional features
 - `query` - object with params to query string (will be added to url)
 - `data` - JSON / String / FormData. Note that `data` won't be sent on `GET` method
 - `headers` - object with request headers.
-  - Also you can pass headers function for dynamic headers.  
+  - Also you can pass headers function for dynamic headers.
   - For example, you can use headers function to detect auth token changes.
 - `parser` - arrayBuffer / blob / formData / json / text
 - `credentials` - omit / same-origin / include
@@ -195,3 +195,6 @@ Options are same with fetch but with additional features
 - `another('progress')` calls in `onprogress` event handler with `event` in `data`
 - `another('aborted')` calls in `onabort` event handler with `event` in `data`.
   - Note that it also **rejects** Promise (but `error` hooks won't be called).
+
+## License
+MIT © [Anton Kosykh](https://github.com/kelin2025)
