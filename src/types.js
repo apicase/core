@@ -40,7 +40,7 @@ export type Adapter<Options> = (query: {
   instance: Apicase
 }) => void
 
-export type Plugin = (instance: Apicase, options: any) => void
+export type Plugin<T> = (instance: Apicase, options?: T) => void
 
 export type Apicase = {
   base: {
@@ -57,8 +57,8 @@ export type Apicase = {
   call: (options: AllOptions) => Promise<mixed>,
   all: (options: AllOptions[]) => Promise<mixed>,
   of: (options: AllOptions) => Apicase,
-  install: (installer: Plugin, options: any) => void,
-  extend: (installer: Plugin, options: any) => Apicase,
+  install: (installer: Plugin<any>, options: any) => void,
+  extend: (installer: Plugin<any>, options: any) => Apicase,
   on: (event: EventName, callback: (...args: any[]) => void) => void,
   // For plugins
   [string]: any
