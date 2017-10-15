@@ -109,7 +109,7 @@ const Apicase: Types.Apicase = {
     return {
       ...this,
       base: {
-        query: mergeOptions(this.base.hooks, options),
+        query: mergeOptions(this.base.query, options),
         hooks: mergeHooks(this.base.hooks, hooks)
       }
     }
