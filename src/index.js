@@ -31,16 +31,16 @@ const Apicase: Types.Apicase = {
   },
 
   // Modify apicase object
-  install (installer) {
+  install (installer, options) {
     this.bus.emit('preinstall', this)
-    installer(this)
+    installer(this, options)
     this.bus.emit('postinstall', this)
   },
 
   // Get a copy of apicase with modified state
-  extend (installer) {
+  extend (installer, options) {
     const instance = clone(this)
-    instance.install(installer)
+    instance.install(installer, options)
     return instance
   },
 
@@ -92,7 +92,8 @@ const Apicase: Types.Apicase = {
         done: data => pipeM(handle('success'), success)({ data, options }),
         fail: reason => pipeM(handle('error'), error)({ reason, options }),
         another: (name, data, fail = false) =>
-          pipeM(handle(name), ...(fail ? [reject] : []))(data)
+          pipeM(handle(name), ...(fail ? [reject] : []))(data),
+        instance: this
       })
     })
   },

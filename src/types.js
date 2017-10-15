@@ -36,10 +36,11 @@ export type Adapter<Options> = (query: {
   options: Options,
   done: (data: mixed) => void,
   fail: (reason: mixed) => void,
-  another: (hookType: string, data: mixed, reject?: boolean) => void
+  another: (hookType: string, data: mixed, reject?: boolean) => void,
+  instance: Apicase
 }) => void
 
-export type Plugin = (instance: Apicase) => void
+export type Plugin = (instance: Apicase, options: any) => void
 
 export type Apicase = {
   base: {
@@ -56,8 +57,8 @@ export type Apicase = {
   call: (options: AllOptions) => Promise<mixed>,
   all: (options: AllOptions[]) => Promise<mixed>,
   of: (options: AllOptions) => Apicase,
-  install: (installer: Plugin) => void,
-  extend: (installer: Plugin) => Apicase,
+  install: (installer: Plugin, options: any) => void,
+  extend: (installer: Plugin, options: any) => Apicase,
   on: (event: EventName, callback: (...args: any[]) => void) => void,
   // For plugins
   [string]: any
