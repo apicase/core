@@ -1,6 +1,7 @@
 // @flow
 import type { Adapter } from '../types'
 import { compile } from 'path-to-regexp'
+import isPlainObject from 'is-plain-object'
 import { pipeM, overAll, evaluateHeaders, jsonToQueryString } from '../utils'
 import { over, pipe, prop, merge, concat, converge, lensProp } from 'ramda'
 
@@ -15,9 +16,11 @@ type FetchAdapterQuery = {
 }
 
 const urlLens = lensProp('url')
+const bodyLens = lensProp('body')
 const headersLens = lensProp('headers')
 
-// Shortcuts
+const setFetchDefaults = merge({ method: 'GET', body: undefined, headers: {}, parser: 'json', credentials: 'omit', cache: 'default' })
+
 // TODO: Uncurry not working with path-to-regexp.compile. Need to test and fix
 const insertParams = converge(
   (url, params) => compile(url)(params),
@@ -25,6 +28,13 @@ const insertParams = converge(
 )
 
 const insertQueryString = converge(concat, [prop('url'), pipe(prop('query'), jsonToQueryString)])
+
+const prepareBody = body =>
+  body instanceof FormData
+    ? body
+    : isPlainObject(body)
+      ? JSON.stringify(body)
+      : body
 
 // IDEA: Add query options to done and fail callbacks
 const goFetch = (done, fail) => ({ url, parser, ...options}) =>
@@ -38,9 +48,6 @@ const goFetch = (done, fail) => ({ url, parser, ...options}) =>
     )
     .catch(fail)
 
-
-const setFetchDefaults = merge({ method: 'GET', body: undefined, headers: {}, parser: 'json', credentials: 'omit', cache: 'default' })
-
 // Combine all the above
 const fetchAdapter: Adapter<FetchAdapterQuery> = ({ options, done, fail }) => {
   pipeM(
@@ -48,6 +55,7 @@ const fetchAdapter: Adapter<FetchAdapterQuery> = ({ options, done, fail }) => {
     overAll(urlLens)(insertParams),
     overAll(urlLens)(insertQueryString),
     over(headersLens)(evaluateHeaders),
+    over(bodyLens)(prepareBody),
     goFetch(done, fail)
   )(options)
 }
