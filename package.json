@@ -63,6 +63,7 @@
     "requirejs": "^2.3.5"
   },
   "dependencies": {
+    "is-plain-object": "^2.0.4",
     "koa-compose": "^4.0.0",
     "nanoevents": "^1.0.2",
     "path-to-regexp": "^2.0.0",
