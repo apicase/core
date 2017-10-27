@@ -120,10 +120,17 @@ const Apicase: Types.Apicase = {
     return this.bus.on(event, callback)
   },
 
+  // Emiting events
+  emit (event, ...data) {
+    return this.bus.emit(event, ...data)
+  },
+
   // Events emmiter for
   bus: new NanoEvents
 
 }
+
+window.a = Apicase
 
 export default Apicase
 
