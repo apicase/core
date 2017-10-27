@@ -11,7 +11,7 @@ const Apicase: Types.Apicase = {
   // Base for calls
   base: {
     query: {},
-    hooks: { }
+    hooks: {}
   },
 
   // Options
