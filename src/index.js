@@ -102,7 +102,7 @@ const Apicase: Types.Apicase = {
 
     if (state.hooks.isAborted) {
       intrcptrs.abort.forEach(i => {
-        options = i.handler({ options })
+        state.hooks.abortReason = i.handler({ options, reason: state.hooks.abortReason })
       })
       emit('aborted')({ options, reason: state.hooks.abortReason })
       return Promise.reject({ options, reason: state.hooks.abortReason })
