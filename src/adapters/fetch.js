@@ -1,7 +1,6 @@
 // @flow
 import type { Adapter } from '../types'
 import { compile } from 'path-to-regexp'
-import isPlainObject from 'is-plain-object'
 import { pipeM, overAll, evaluateHeaders, jsonToQueryString } from '../utils'
 import { over, pipe, prop, merge, concat, converge, lensProp } from 'ramda'
 
@@ -16,7 +15,6 @@ type FetchAdapterQuery = {
 }
 
 const urlLens = lensProp('url')
-const bodyLens = lensProp('body')
 const headersLens = lensProp('headers')
 
 const setFetchDefaults = merge({ method: 'GET', body: undefined, headers: {}, parser: 'json', credentials: 'omit', cache: 'default' })
@@ -28,13 +26,6 @@ const insertParams = converge(
 )
 
 const insertQueryString = converge(concat, [prop('url'), pipe(prop('query'), jsonToQueryString)])
-
-const prepareBody = body =>
-  body instanceof FormData
-    ? body
-    : isPlainObject(body)
-      ? JSON.stringify(body)
-      : body
 
 // IDEA: Add query options to done and fail callbacks
 const goFetch = (done, fail) => ({ url, parser, ...options}) =>
@@ -55,7 +46,6 @@ const fetchAdapter: Adapter<FetchAdapterQuery> = ({ options, done, fail }) => {
     overAll(urlLens)(insertParams),
     overAll(urlLens)(insertQueryString),
     over(headersLens)(evaluateHeaders),
-    over(bodyLens)(prepareBody),
     goFetch(done, fail)
   )(options)
 }
