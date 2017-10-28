@@ -23,18 +23,18 @@ export type ComposedHooksObject = HooksT<HooksComposition>
 export type UnnormalizedHooksObject = HooksT<Hook | Hook[]>
 
 // Interceptors
-export type RequestInterceptor = ({ options: AllOptions }) => AllOptions
+export type BeforeInterceptor = ({ options: AllOptions }) => AllOptions
 export type SuccessInterceptor = (res: { data: any, options: AllOptions, wasFailed: boolean }, fail: Function) => any
 export type ErrorInterceptor = (res: { reason: any, options: AllOptions, wasSuccess: boolean }, done: Function) => any
 export type AbortInterceptor = (res: { reason: any, options: AllOptions }) => any
 export type InterceptorsObject = {
-  request?: Array<RequestInterceptor | InterceptorsT<RequestInterceptor>>,
+  before?: Array<BeforeInterceptor | InterceptorsT<BeforeInterceptor>>,
   success?: Array<SuccessInterceptor | InterceptorsT<SuccessInterceptor>>,
   error?: Array<ErrorInterceptor | InterceptorsT<ErrorInterceptor>>,
   abort?: Array<AbortInterceptor | InterceptorsT<AbortInterceptor>>
 }
 export type normalizedInterceptors = {
-  request?: InterceptorsT<RequestInterceptor>[],
+  before?: InterceptorsT<BeforeInterceptor>[],
   success?: InterceptorsT<SuccessInterceptor>[],
   error?: InterceptorsT<ErrorInterceptor>[],
   abort?: InterceptorsT<AbortInterceptor>[]
