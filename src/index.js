@@ -83,7 +83,7 @@ const Apicase: Types.Apicase = {
       interceptors: {
         isOK: true,
         stopData: null,
-        wasFailed: false,
+        wasError: false,
         wasSuccess: false
       }
     }
@@ -123,7 +123,7 @@ const Apicase: Types.Apicase = {
           const payload = {
             options,
             data: clonedData,
-            wasFailed: state.interceptors.wasFailed
+            wasError: state.interceptors.wasError
           }
           const res = i.handler(payload, stop)
           if (!state.interceptors.isOK) {
@@ -139,7 +139,7 @@ const Apicase: Types.Apicase = {
       const fail = async reason => {
         let clonedReason = clone(reason)
         state.interceptors.isOK = true
-        state.interceptors.wasFailed = true
+        state.interceptors.wasError = true
         const stop = data => {
           state.interceptors.isOK = false
           if (data !== undefined) {
