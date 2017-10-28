@@ -1,22 +1,29 @@
 // @flow
-import { pipe, clone } from 'ramda'
+import { tap, pipe, clone } from 'ramda'
 import * as Types from './types'
 import NanoEvents from 'nanoevents'
 import xhrAdapter from './adapters/xhr'
 import fetchAdapter from './adapters/fetch'
-import { pipeM, curryBus, mergeHooks, mergeOptions, createHandler, mapComposeHooks } from './utils'
+import { pipeM, curryBus, mergeHooks, mergeOptions, createHandler, mapComposeHooks, normalizeInterceptors, mergeInterceptors, filterInterceptors } from './utils'
 
 const Apicase: Types.Apicase = {
 
   // Base for calls
   base: {
     query: {},
-    hooks: {}
+    hooks: {},
+    interceptors: {
+      before: [],
+      success: [],
+      error: [],
+      abort: []
+    }
   },
 
   // Options
   options: {
-    defaultAdapter: 'fetch'
+    defaultAdapter: 'fetch',
+    newHandlers: false
   },
 
   // Built-in adapters for fetch and XMLHttpRequest
@@ -27,7 +34,20 @@ const Apicase: Types.Apicase = {
 
   // Use it to add a new adapter
   use (name, adapter) {
+    if (typeof adapter === 'function') {
+      this.adapters[name] = {
+        handler: adapter
+      }
+      return
+    }
     this.adapters[name] = adapter
+    const interceptors = adapter.interceptors
+    if (interceptors) {
+      const request = normalizeInterceptors(interceptors.request, name)
+      const response = normalizeInterceptors(interceptors.response, name)
+      this.base.interceptors.request.concat(request)
+      this.base.interceptors.request.concat(response)
+    }
   },
 
   // Modify apicase object
@@ -44,56 +64,112 @@ const Apicase: Types.Apicase = {
     return instance
   },
 
-  // Make API call
-  // TODO: Make it a little simpler
   async call ({
     adapter = this.options.defaultAdapter,
     hooks = {},
+    interceptors = {},
     ...query
-  } = {}) {
-
+  }) {
     const h = pipe(mergeHooks, mapComposeHooks)(this.base.hooks, hooks)
     const emit = curryBus(this.bus)
-    const options = mergeOptions(this.base.query, query)
+    let options = mergeOptions(this.base.query, query)
     const handle = createHandler(emit, h)
+    const intrcptrs = pipe(mergeInterceptors, filterInterceptors(adapter))(this.base.interceptors, interceptors)
+    const state = {
+      hooks: {
+        isAborted: false,
+        abortReason: null
+      },
+      interceptors: {
+        isOK: true,
+        stopData: null,
+        wasFailed: false,
+        wasSuccess: false
+      }
+    }
 
-    let isAborted = false
-    let abortReason = null
+    intrcptrs.before.forEach(i => {
+      options = i.handler({ options })
+    })
 
     await handle('before')({
       options,
       abort: (reason) => {
-        isAborted = true
-        abortReason = reason
+        state.hooks.isAborted = true
+        state.hooks.abortReason = reason
       }
     })
 
-    if (isAborted) {
-      emit('aborted')({ options, reason: abortReason })
-      return Promise.reject({ options, reason: abortReason })
+    if (state.hooks.isAborted) {
+      intrcptrs.abort.forEach(i => {
+        options = i.handler({ options })
+      })
+      emit('aborted')({ options, reason: state.hooks.abortReason })
+      return Promise.reject({ options, reason: state.hooks.abortReason })
     }
 
     return new Promise(async (resolve, reject) => {
+      const done = async data => {
+        let clonedData = clone(data)
+        state.interceptors.isOK = true
+        state.interceptors.wasSuccess = true
+        const stop = data => {
+          state.interceptors.isOK = false
+          if (data !== undefined) {
+            clonedData = data
+          }
+        }
+        for (const i of intrcptrs.success) {
+          const payload = {
+            options,
+            data: clonedData,
+            wasFailed: state.interceptors.wasFailed
+          }
+          const res = i.handler(payload, stop)
+          if (!state.interceptors.isOK) {
+            fail(clonedData)
+            return
+          }
+          clonedData = res
+        }
+        await handle('success')({ data: clonedData, options })
+        resolve(clonedData)
+      }
 
-      const success = data => pipeM(
-        handle('finish'),
-        r => resolve(r.data)
-      )({ data, options, success: true })
-
-      const error = async reason => pipeM(
-        handle('finish'),
-        r => reject(r.reason)
-      )({ reason, options, success: true })
-
-      emit('start')({ options })
+      const fail = async reason => {
+        let clonedReason = clone(reason)
+        state.interceptors.isOK = true
+        state.interceptors.wasFailed = true
+        const stop = data => {
+          state.interceptors.isOK = false
+          if (data !== undefined) {
+            clonedReason = data
+          }
+        }
+        for (const i of intrcptrs.error) {
+          const payload = {
+            options,
+            reason: clonedReason,
+            wasSuccess: state.interceptors.wasSuccess
+          }
+          const res = i.handler(payload, stop)
+          if (!state.interceptors.isOK) {
+            done(clonedReason)
+            return
+          }
+          clonedReason = res
+        }
+        await handle('success')({ reasopn: clonedReason, options })
+        reject(clonedReason)
+      }
 
       this.adapters[adapter]({
+        done,
+        fail,
         options,
-        done: data => pipeM(handle('success'), success)({ data, options }),
-        fail: reason => pipeM(handle('error'), error)({ reason, options }),
+        instance: this,
         another: (name, data, fail = false) =>
-          pipeM(handle(name), ...(fail ? [reject] : []))(data),
-        instance: this
+          pipeM(handle(name), ...(fail ? [reject] : []))(data)
       })
     })
   },
@@ -105,12 +181,13 @@ const Apicase: Types.Apicase = {
 
   // Make a service with prepared options
   // Options from call() and all() methods will be merged with service options
-  of ({ hooks = {}, ...options }) {
+  of ({ hooks = {}, interceptors = {}, ...options }) {
     return {
       ...this,
       base: {
         query: mergeOptions(this.base.query, options),
-        hooks: mergeHooks(this.base.hooks, hooks)
+        hooks: mergeHooks(this.base.hooks, hooks),
+        interceptors: mergeInterceptors(this.base.interceptors)(interceptors)
       }
     }
   },
@@ -129,8 +206,6 @@ const Apicase: Types.Apicase = {
   bus: new NanoEvents
 
 }
-
-window.a = Apicase
 
 export default Apicase
 

@@ -1,6 +1,6 @@
 // @flow
 import * as Types from './types'
-import { is, of, map, set, join, keys, pipe, when, assoc, curry, merge, concat, reduce, isEmpty, toPairs, identity, mergeWith, complement, mergeDeepRight } from 'ramda'
+import { is, of, tap, map, set, join, keys, pipe, when, assoc, curry, merge, concat, filter, reduce, isEmpty, toPairs, identity, mergeWith, complement, mergeDeepRight } from 'ramda'
 
 /* Returns true if object is not empty */
 const isNotEmpty: Types.isNotEmpty = complement(isEmpty)
@@ -86,3 +86,17 @@ export const createHandler: Types.createHandler = (emit, hooks) => name => async
   }
   return data
 }
+
+/* Normalize interceptor */
+export const normalizeInterceptors: Types.normalizeInterceptors = (handlers, adapter = null) => handlers.map(handler => ({
+  adapter: adapter || handler.adapter || null,
+  handler: typeof handler === 'object' ? handler.handler : handler
+}))
+
+/* Merging interceptors */
+export const mergeInterceptors: Types.mergeInterceptors = curry((a, b) =>
+  mergeWith(concat)(map(normalizeInterceptors)(a), map(normalizeInterceptors)(b))
+)
+
+/* */
+export const filterInterceptors: Types.filterInterceptors = adapter => map(filter(i => !i.adapter || i.adapter === adapter))
