@@ -1,5 +1,5 @@
 // @flow
-import { tap, pipe, clone } from 'ramda'
+import { pipe, clone } from 'ramda'
 import * as Types from './types'
 import NanoEvents from 'nanoevents'
 import xhrAdapter from './adapters/xhr'
