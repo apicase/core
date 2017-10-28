@@ -159,7 +159,7 @@ const Apicase: Types.Apicase = {
           }
           clonedReason = res
         }
-        await handle('error')({ reasopn: clonedReason, options })
+        await handle('error')({ reason: clonedReason, options })
         reject(clonedReason)
       }
 
