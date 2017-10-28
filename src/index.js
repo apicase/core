@@ -69,7 +69,7 @@ const Apicase: Types.Apicase = {
     hooks = {},
     interceptors = {},
     ...query
-  }) {
+  } = {}) {
     const h = pipe(mergeHooks, mapComposeHooks)(this.base.hooks, hooks)
     const emit = curryBus(this.bus)
     let options = mergeOptions(this.base.query, query)
