@@ -12,7 +12,7 @@ const encodePairs: Types.encodePairs = map(map(encodeURIComponent))
 const joinParts: Types.joinParts = pipe(map(join('=')), join('&'))
 
 /* Adds question sign to start if QueryString is not empty */
-const addQuestionSign: Types.addQuestionSign = when(isNotEmpty, ('?'))
+const addQuestionSign: Types.addQuestionSign = when(isNotEmpty, i => `?${i}`)
 
 /* Convert json to QueryString */
 export const jsonToQueryString: Types.jsonToQueryString = pipe(toPairs, encodePairs, joinParts, addQuestionSign)
