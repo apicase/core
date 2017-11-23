@@ -1,7 +1,7 @@
 import cjs from 'rollup-plugin-commonjs'
 import babel from 'rollup-plugin-babel'
 import resolve from 'rollup-plugin-node-resolve';
-import uglify from 'rollup-plugin-uglify'
+import uglify from 'rollup-plugin-uglify-es'
 
 export default {
   input: 'src/index.js',
@@ -11,9 +11,11 @@ export default {
     format: 'es'
   },
   plugins: [
-    cjs(),
+    babel({
+      exclude: 'node_modules/**'
+    }),
     resolve({ jsnext: true }),
-    babel(),
+    cjs(),
     uglify()
   ]
 }
