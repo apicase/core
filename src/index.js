@@ -52,10 +52,10 @@ const Apicase = {
 
   call ({ hooks, interceptors, ...query }) {
     const o = mergeOptions(this.base, {
-        query,
-        hooks,
-        interceptors
-      })
+      query,
+      hooks,
+      interceptors
+    })
     console.log(o)
     // TODO: Complete this
   },
@@ -72,7 +72,7 @@ const Apicase = {
     this.bus.emit(event, ...data)
   },
 
-  bus: new NanoEvents
+  bus: new NanoEvents()
 }
 
 export default Apicase
