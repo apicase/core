@@ -4,6 +4,7 @@ var NanoEvents = require('nanoevents')
 
 var omit = require('./omit')
 var merge = require('./merge')
+var hooks = require('./hooks')
 
 module.exports = {
   base: {
@@ -76,7 +77,8 @@ module.exports = {
         cb(context.data || context.reason)
         next()
       }
-      return compose(o.hooks[type].concat(endCallback))(ctx)
+      var h = o.hooks[type].concat(endCallback).map(hooks.wrapper(type))
+      return compose(h)(ctx)
     }
 
     return new Promise(function makeCall (resolve, reject) {
@@ -90,12 +92,11 @@ module.exports = {
             },
             fail: function failCallback (reason) {
               return callHooks('error', reject, { reason })
+            },
+            custom: function customCallback (type, data) {
+              return callHooks(type, [], data)
             }
           })
-        }).catch(function (err) {
-          if (process.env.NODE_ENV !== 'production' && !instance.options.silent) {
-            console.warn('Something went wrong in before hooks', err)
-          }
         })
     })
   },
