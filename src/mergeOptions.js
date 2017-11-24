@@ -1,4 +1,4 @@
-import clone from 'clone'
+import clone from 'nanoclone'
 import merge from 'deepmerge'
 
 // TODO: Complete this

@@ -1,4 +1,4 @@
-import clone from 'clone'
+import clone from 'nanoclone'
 import NanoEvents from 'nanoevents'
 
 import mergeOptions from './mergeOptions'

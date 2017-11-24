@@ -12,8 +12,8 @@
     "size": "size-limit"
   },
   "dependencies": {
-    "clone": "^2.1.1",
     "deepmerge": "^2.0.1",
+    "nanoclone": "^0.1.1",
     "nanoevents": "^1.0.2",
     "path-to-regexp": "^2.1.0"
   },
