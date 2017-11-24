@@ -1,9 +1,10 @@
-import clone from 'nanoclone'
-import NanoEvents from 'nanoevents'
+var clone = require('nanoclone')
+var NanoEvents = require('nanoevents')
 
-import mergeOptions from './mergeOptions'
+var omit = require('./omit')
+var mergeOptions = require('./mergeOptions')
 
-const Apicase = {
+module.exports = {
   base: {
     query: {},
     hooks: {
@@ -39,25 +40,31 @@ const Apicase = {
     return clone(this).install(installer, options)
   },
 
-  of ({ hooks, interceptors, ...query }) {
-    return {
-      ...this,
+  of (options) {
+    return Object.assign({}, this, {
       base: mergeOptions(this.base, {
-        query,
-        hooks,
-        interceptors
+        hooks: options.hooks,
+        query: omit(['hooks', 'interceptors'], options),
+        interceptors: options.interceptors
       })
-    }
+    })
   },
 
-  call ({ hooks, interceptors, ...query }) {
-    const o = mergeOptions(this.base, {
-      query,
-      hooks,
-      interceptors
+  call (options) {
+    var o = mergeOptions(this.base, {
+      hooks: options.hooks,
+      query: omit(['hooks', 'interceptors'], options),
+      interceptors: options.interceptors
     })
-    console.log(o)
-    // TODO: Complete this
+
+    var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter]
+
+    return new Promise(function (resolve, reject) {
+      adapter({
+        done: resolve,
+        fail: reject
+      })
+    })
   },
 
   all (options) {
@@ -68,11 +75,10 @@ const Apicase = {
     return this.bus.on(event, callback)
   },
 
-  emit (event, ...data) {
-    this.bus.emit(event, ...data)
+  emit () {
+    this.bus.emit.apply(this.bus, arguments)
   },
 
+  // BUG: bus doesnt' work (process is not defined)
   bus: new NanoEvents()
 }
-
-export default Apicase

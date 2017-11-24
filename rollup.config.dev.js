@@ -1,5 +1,4 @@
 import cjs from 'rollup-plugin-commonjs'
-import babel from 'rollup-plugin-babel'
 import serve from 'rollup-plugin-serve'
 import analyze from 'rollup-analyzer-plugin'
 import resolve from 'rollup-plugin-node-resolve'
@@ -10,13 +9,10 @@ export default {
   output: {
     name: 'apicasecore',
     file: 'dist/index.js',
-    format: 'umd'
+    format: 'iife'
   },
   plugins: [
-    babel({
-      exclude: 'node_modules/**'
-    }),
-    resolve({ jsnext: true }),
+    resolve(),
     cjs(),
     serve({
       contentBase: ['dist', 'views'],
