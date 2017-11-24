@@ -9,6 +9,7 @@
   "scripts": {
     "build": "rollup -c rollup.config.build.js && yarn size",
     "dev": "rollup -w -c rollup.config.dev.js",
+    "lint": "eslint --fix src/*.js",
     "size": "size-limit"
   },
   "dependencies": {
