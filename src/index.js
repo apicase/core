@@ -1,8 +1,9 @@
 var clone = require('nanoclone')
+var compose = require('koa-compose')
 var NanoEvents = require('nanoevents')
 
 var omit = require('./omit')
-var mergeOptions = require('./mergeOptions')
+var merge = require('./merge')
 
 module.exports = {
   base: {
@@ -22,27 +23,37 @@ module.exports = {
   },
 
   options: {
-    defaultAdapter: 'fetch',
-    adapters: {}
+    silent: false,
+    defaultAdapter: 'resolve',
+    adapters: {
+      resolve (ctx) {
+        setTimeout(ctx.done, ctx.time || 1000, ctx.options)
+      },
+      reject (ctx) {
+        setTimeout(ctx.fail, ctx.time || 1000, ctx.options)
+      }
+    }
   },
 
   use (name, adapter) {
     this.options.adapters[name] = adapter
   },
 
-  async install (installer, options) {
+  install (installer, options) {
     this.bus.emit('preinstall', this)
-    await installer(this, options)
+    installer(this, options)
     this.bus.emit('postinstall', this)
   },
 
   extend (installer, options) {
-    return clone(this).install(installer, options)
+    var cloned = clone(this)
+    cloned.install(installer, options)
+    return cloned
   },
 
   of (options) {
     return Object.assign({}, this, {
-      base: mergeOptions(this.base, {
+      base: merge(this.base, {
         hooks: options.hooks,
         query: omit(['hooks', 'interceptors'], options),
         interceptors: options.interceptors
@@ -51,19 +62,41 @@ module.exports = {
   },
 
   call (options) {
-    var o = mergeOptions(this.base, {
+    var instance = this
+    var o = merge(this.base, {
       hooks: options.hooks,
       query: omit(['hooks', 'interceptors'], options),
       interceptors: options.interceptors
     })
-
     var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter]
 
-    return new Promise(function (resolve, reject) {
-      adapter({
-        done: resolve,
-        fail: reject
-      })
+    function callHooks (type, cb, context) {
+      var ctx = Object.assign({}, context, { options: o.query })
+      function endCallback (data, next) {
+        cb(context.data || context.reason)
+        next()
+      }
+      return compose(o.hooks[type].concat(endCallback))(ctx)
+    }
+
+    return new Promise(function makeCall (resolve, reject) {
+      callHooks('before', [], { options: o.query })
+        .then(function () {
+          adapter({
+            instance,
+            options: o.query,
+            done: function doneCallback (data) {
+              return callHooks('success', resolve, { data })
+            },
+            fail: function failCallback (reason) {
+              return callHooks('error', reject, { reason })
+            }
+          })
+        }).catch(function (err) {
+          if (process.env.NODE_ENV !== 'production' && !instance.options.silent) {
+            console.warn('Something went wrong in before hooks', err)
+          }
+        })
     })
   },
 

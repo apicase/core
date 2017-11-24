@@ -1,5 +1,6 @@
 import cjs from 'rollup-plugin-commonjs'
 import serve from 'rollup-plugin-serve'
+import replace from 'rollup-plugin-replace'
 import analyze from 'rollup-analyzer-plugin'
 import resolve from 'rollup-plugin-node-resolve'
 import livereload from 'rollup-plugin-livereload'
@@ -7,13 +8,16 @@ import livereload from 'rollup-plugin-livereload'
 export default {
   input: 'src/index.js',
   output: {
-    name: 'apicasecore',
+    name: 'apicase',
     file: 'dist/index.js',
     format: 'iife'
   },
   plugins: [
     resolve(),
     cjs(),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify('dev')
+    }),
     serve({
       contentBase: ['dist', 'views'],
       host: 'localhost',

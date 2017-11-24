@@ -1,11 +1,11 @@
 var merge = require('deepmerge')
 
 // TODO: Complete this
-var mergeQuery = function (queries) {
+function mergeQuery (queries) {
   return merge(...queries)
 }
 
-var reducer = function (a, b) {
+function reducer (a, b) {
   Object.keys(b).forEach(function (k) {
     a[k] = a[k]
       ? a[k].concat(b[k])
@@ -14,7 +14,7 @@ var reducer = function (a, b) {
   return a
 }
 
-var mergeWithConcat = function (options) {
+function mergeWithConcat (options) {
   return options.reduce(reducer, {})
 }
 

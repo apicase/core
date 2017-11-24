@@ -1,6 +1,6 @@
 module.exports = function omit (keys, src) {
-  const obj = {}
-  for (let key in src) {
+  var obj = {}
+  for (var key in src) {
     if (!keys.includes(key)) {
       obj[key] = src[key]
     }
