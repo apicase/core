@@ -16,7 +16,7 @@ export default {
     resolve(),
     cjs(),
     replace({
-      'process.env.NODE_ENV': JSON.stringify('dev')
+      'process.env.NODE_ENV': JSON.stringify('development')
     }),
     serve({
       contentBase: ['dist', 'views'],
