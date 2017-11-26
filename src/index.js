@@ -30,17 +30,25 @@ module.exports = {
     silent: false,
     defaultAdapter: 'resolve',
     adapters: {
-      resolve (ctx) {
-        setTimeout(ctx.done, ctx.time || 1000, ctx.options)
+      resolve: {
+        callback: function (ctx) {
+          setTimeout(ctx.done, ctx.time || 1000, ctx.options)
+        }
       },
-      reject (ctx) {
-        setTimeout(ctx.fail, ctx.time || 1000, ctx.options)
+      reject: {
+        callback: function (ctx) {
+          setTimeout(ctx.fail, ctx.time || 1000, ctx.options)
+        }
       }
     }
   },
 
   use (name, adapter) {
-    this.options.adapters[name] = adapter
+    this.options.adapters[name] =
+      typeof adapter === 'function'
+        ? { callback: adapter }
+        : adapter
+    check.isAdapterInstalledCorrectly(name, this.options.adapters)
   },
 
   install (installer, options) {
@@ -80,7 +88,7 @@ module.exports = {
       interceptors: options.interceptors
     })
 
-    var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter]
+    var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter].callback
 
     function callHooks (type, cb, context) {
       var ctx = Object.assign({}, context, { options: o.query })
@@ -100,8 +108,12 @@ module.exports = {
         .concat(endCallback)
         .map(hooks.wrapper(type, meta))
 
+      instance.emit(type, ctx)
+
       return compose(h)(ctx)
-        .then(check.createHooksCallChecker(type, meta))
+        .then(function () {
+          check.isAllHooksCalled(type, meta)
+        })
     }
 
     function callAdapter (resolve, reject) {
