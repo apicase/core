@@ -1,7 +1,8 @@
-function createHooksCallChecker (type, meta) {
-  return null
-}
+function isAllHooksCalled () { }
+
+function isAdapterInstalledCorrectly () {}
 
 module.exports = {
-  createHooksCallChecker
+  isAllHooksCalled,
+  isAdapterInstalledCorrectly
 }
