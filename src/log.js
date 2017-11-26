@@ -3,7 +3,7 @@ function warn () {
   for (var index in arguments) {
     text += ' ' + arguments[index]
   }
-  console.error('[Apicase] ' + text)
+  console.error('[Apicase]' + text)
 }
 
 function error () {
