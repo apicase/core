@@ -1,3 +1,5 @@
+const log = require('./log')
+
 var wrapper = function createWrapperCreator (type, meta) {
   return function createWrapper (cb) {
     return function hookWrapper (ctx, next) {
@@ -25,8 +27,8 @@ var logger = function hookErrorLogger (type, cb, err) {
   var name = cb.name && cb.name !== type
     ? cb.name
     : 'anonymous'
-  console.error('[Apicase] Error in ' + type + ' hook')
-  console.error('[Apicase] Hook name: ' + name)
+  log.warn('Error in ' + type + ' hook')
+  log.warn('Hook name: ' + name)
   throw err
 }
 
