@@ -155,15 +155,6 @@ var Apicase = function () {
     })
   }
 
-  // TODO: test again and rethink
-  this.transformCall = function (callback) {
-    return transformer.transform(this, 'call', transformer.create(callback))
-  }
-
-  this.transformAll = function (callback) {
-    return transformer.transform(this, 'all', transformer.create(callback))
-  }
-
   this.all = function (options) {
     var instance = this
     var queries = options.map(function wrapOptions (o) {
@@ -172,18 +163,27 @@ var Apicase = function () {
     return Promise.all(queries)
   }
 
-  this.chain = function (options, lastData) {
+  // TODO: test again and rethink
+  this.transform = function (callback) {
+    return transformer.transform(this, 'call', transformer.create(callback))
+  }
+
+  this.transformMap = function (callback) {
+    return transformer.transform(this, 'all', transformer.create(callback))
+  }
+
+  this.queue = function (options, lastData) {
     if (!options.length) return lastData
     var instance = this
 
-    function chainNext (data) {
-      return instance.chain(options.slice(1), data)
+    function nextQueue (data) {
+      return instance.queue(options.slice(1), data)
     }
 
     if (options[0] instanceof Apicase) {
       return options[0]
         .call(lastData)
-        .then(chainNext)
+        .then(nextQueue)
     }
 
     var option =
@@ -193,7 +193,7 @@ var Apicase = function () {
 
     return instance
       .call(option)
-      .then(chainNext)
+      .then(nextQueue)
   }
 
   this.bus = new NanoEvents()

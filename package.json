@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "rollup -c rollup.config.build.js && yarn size",
-    "dev": "rollup -w -c rollup.config.dev.js",
+    "dev": "rollup -w -c rollup.config.dev.js & node ./dev-server.js",
     "lint": "eslint --fix src/*.js",
     "size": "size-limit"
   },
@@ -22,12 +22,14 @@
   "devDependencies": {
     "colors": "^1.1.2",
     "connect": "^3.6.5",
+    "connect-proxy": "^1.0.2",
     "eslint": "^4.11.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
+    "proxy-middleware": "^0.15.0",
     "reload": "^2.2.2",
     "rollup": "^0.51.8",
     "rollup-analyzer": "^1.1.0",
