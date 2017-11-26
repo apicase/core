@@ -5,6 +5,9 @@ var NanoEvents = require('nanoevents')
 var omit = require('./omit')
 var merge = require('./merge')
 var hooks = require('./hooks')
+var check = process.env.NODE_ENV !== 'production'
+  ? require('./check')
+  : require('./nocheck')
 
 module.exports = {
   base: {
@@ -64,39 +67,67 @@ module.exports = {
 
   call (options) {
     var instance = this
+
+    var meta = {
+      isAborted: false,
+      abortReason: null,
+      hooks: {}
+    }
+
     var o = merge(this.base, {
       hooks: options.hooks,
       query: omit(['hooks', 'interceptors'], options),
       interceptors: options.interceptors
     })
+
     var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter]
 
     function callHooks (type, cb, context) {
       var ctx = Object.assign({}, context, { options: o.query })
+
       function endCallback (data, next) {
-        cb(context.data || context.reason)
-        next()
+        if (cb) {
+          cb(context.data || context.reason)
+        }
       }
-      var h = o.hooks[type].concat(endCallback).map(hooks.wrapper(type))
+
+      meta.hooks[type] = {
+        called: 0,
+        all: o.hooks[type].length
+      }
+
+      var h = o.hooks[type]
+        .concat(endCallback)
+        .map(hooks.wrapper(type, meta))
+
       return compose(h)(ctx)
+        .then(check.createHooksCallChecker(type, meta))
+    }
+
+    function callAdapter (resolve, reject) {
+      adapter({
+        instance,
+        options: o.query,
+        done: function doneCallback (data) {
+          return callHooks('success', resolve, { data })
+        },
+        fail: function failCallback (reason) {
+          return callHooks('error', reject, { reason })
+        },
+        custom: function customCallback (type, data) {
+          return callHooks(type, [], data)
+        }
+      })
     }
 
     return new Promise(function makeCall (resolve, reject) {
-      callHooks('before', [], { options: o.query })
+      callHooks('before', null, {})
         .then(function () {
-          adapter({
-            instance,
-            options: o.query,
-            done: function doneCallback (data) {
-              return callHooks('success', resolve, { data })
-            },
-            fail: function failCallback (reason) {
-              return callHooks('error', reject, { reason })
-            },
-            custom: function customCallback (type, data) {
-              return callHooks(type, [], data)
-            }
-          })
+          if (meta.isAborted) {
+            callHooks('aborted', reject, { reason: meta.abortReason })
+          } else {
+            callAdapter(resolve, reject)
+          }
         })
     })
   },

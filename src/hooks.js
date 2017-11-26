@@ -1,8 +1,19 @@
-var wrapper = function createWrapperCreator (type) {
+var wrapper = function createWrapperCreator (type, meta) {
   return function createWrapper (cb) {
     return function hookWrapper (ctx, next) {
       try {
-        cb(ctx, next)
+        if (type !== 'before') {
+          cb(ctx, next)
+        } else {
+          // if (meta.isAborted) return
+          cb(ctx, next, function abortCallback (reason) {
+            meta.isAborted = true
+            meta.abortReason = reason
+          })
+        }
+        if (cb.name && cb.name !== 'endCallback') {
+          meta.hooks[type].called++
+        }
       } catch (err) {
         logger(type, cb, err)
       }
