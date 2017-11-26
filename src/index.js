@@ -5,6 +5,7 @@ var NanoEvents = require('nanoevents')
 var omit = require('./omit')
 var merge = require('./merge')
 var hooks = require('./hooks')
+var adapters = require('./adapters')
 var transformer = require('./transformer')
 var check = process.env.NODE_ENV !== 'production'
   ? require('./check')
@@ -24,7 +25,8 @@ var Apicase = function () {
       success: [],
       error: [],
       aborted: []
-    }
+    },
+    pipeMethod: 'call'
   }
 
   this.options = {
@@ -64,7 +66,7 @@ var Apicase = function () {
   }
 
   this.extend = function (installer, options) {
-    var cloned = clone(this)
+    var cloned = Object.assign({}, this)
     cloned.install(installer, options)
     Object.setPrototypeOf(cloned, this)
     return cloned
@@ -172,6 +174,11 @@ var Apicase = function () {
     return transformer.transform(this, 'all', transformer.create(callback))
   }
 
+  this.method = function (method) {
+    this.options.pipeMethod = method
+    return this
+  }
+
   this.queue = function (options, lastData) {
     if (!options.length) return lastData
     var instance = this
@@ -181,8 +188,8 @@ var Apicase = function () {
     }
 
     if (options[0] instanceof Apicase) {
-      return options[0]
-        .call(lastData)
+      var pipeMethod = options[0].base.pipeMethod
+      return options[0][pipeMethod](lastData)
         .then(nextQueue)
     }
 
@@ -209,4 +216,20 @@ var Apicase = function () {
   return this
 }
 
-module.exports = new Apicase()
+var instance = new Apicase()
+
+instance.use('fetch', adapters.fetch)
+
+const fetchCase = instance.of({ adapter: 'fetch' })
+
+const getPosts = fetchCase.of({ url: '/api/posts' })
+const getPost = fetchCase.transform(id => ({ url: `/api/posts/${id}` }))
+
+window.a = getPost
+
+fetchCase.queue([
+  getPosts,
+  getPost.transformMap(posts => posts.map(i => i.id))
+]).then(console.log)
+
+module.exports = instance
