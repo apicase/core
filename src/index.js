@@ -25,8 +25,7 @@ var Apicase = function () {
       success: [],
       error: [],
       aborted: []
-    },
-    pipeMethod: 'call'
+    }
   }
 
   this.options = {
@@ -86,8 +85,20 @@ var Apicase = function () {
     return cloned
   }
 
-  this.call = function (options) {
+  this.call = function () {
     var instance = this
+    // TODO: return to .all() if it's OK
+    if (arguments.length > 1) {
+      var queries = []
+      for (var index in arguments) {
+        queries.push(arguments[index])
+      }
+      return Promise.all(queries.map(function optionsToCall (query) {
+        return instance.call(query)
+      }))
+    }
+
+    var options = arguments[0]
 
     var meta = {
       isAborted: false,
@@ -101,10 +112,17 @@ var Apicase = function () {
       interceptors: options.interceptors
     })
 
+    o.query = o.interceptors.before.reduce((res, cb) => cb(res), o.query)
+
     var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter].callback
 
     function callHooks (type, cb, context) {
-      var ctx = Object.assign({}, context, { options: o.query })
+      var transformedContext =
+        o.interceptors[type]
+          ? o.interceptors[type].reduce((res, cb) => cb(res), context)
+          : context
+
+      var ctx = Object.assign({}, transformedContext, { options: o.query })
 
       function endCallback (data, next) {
         if (cb) {
@@ -157,20 +175,18 @@ var Apicase = function () {
     })
   }
 
+  // NOTE: It will be removed in next version
+  // Now it just calls apicase.call(...queries)
   this.all = function (options) {
-    var instance = this
-    var queries = options.map(function wrapOptions (o) {
-      return instance.call(o)
-    })
-    return Promise.all(queries)
+    return this.call.apply(this, options)
   }
 
   // TODO: test again and rethink
-  this.transform = function (callback) {
+  this.map = function (callback) {
     return transformer.transform(this, 'call', transformer.create(callback))
   }
 
-  this.transformMap = function (callback) {
+  this.flatMap = function (callback) {
     return transformer.transform(this, 'all', transformer.create(callback))
   }
 
@@ -188,8 +204,7 @@ var Apicase = function () {
     }
 
     if (options[0] instanceof Apicase) {
-      var pipeMethod = options[0].base.pipeMethod
-      return options[0][pipeMethod](lastData)
+      return options[0].call(lastData)
         .then(nextQueue)
     }
 
@@ -217,19 +232,5 @@ var Apicase = function () {
 }
 
 var instance = new Apicase()
-
-instance.use('fetch', adapters.fetch)
-
-const fetchCase = instance.of({ adapter: 'fetch' })
-
-const getPosts = fetchCase.of({ url: '/api/posts' })
-const getPost = fetchCase.transform(id => ({ url: `/api/posts/${id}` }))
-
-window.a = getPost
-
-fetchCase.queue([
-  getPosts,
-  getPost.transformMap(posts => posts.map(i => i.id))
-]).then(console.log)
 
 module.exports = instance
