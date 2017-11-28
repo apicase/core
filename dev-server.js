@@ -1,25 +1,30 @@
 var url = require('url')
+var path = require('path')
 var proxy = require('proxy-middleware')
-var serveStatic = require('serve-static')
+var rollup = require('rollup')
 var connect = require('connect')
 var livereload = require('livereload')
-var rollup = require('rollup')
+var serveStatic = require('serve-static')
 
 var config = require('./rollup.config.dev.js')
 
 var server = connect()
 
+// Fake API
 server.use('/api', proxy(url.parse('https://jsonplaceholder.typicode.com')))
 
-server.use('/dist', serveStatic(__dirname + '/dist'))
+// To include bundle to index.html
+server.use('/dist', serveStatic(path.resolve(__dirname, './dist')))
 
-server.use(serveStatic(__dirname + '/views'))
+// To open index.html
+server.use(serveStatic(path.resolve(__dirname, './views')))
 
+// Run server
 server.listen(8080)
 
-var lrserver = livereload.createServer({
-  port: 3000
-})
-lrserver.watch(__dirname + '/dist')
+// Watch dist to livereload
+var liveserver = livereload.createServer({ port: 3000 })
+liveserver.watch(path.resolve(__dirname, './dist'))
 
-var watcher = rollup.watch(config)
+// Run rollup with dev config
+rollup.watch(config)
