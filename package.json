@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "rollup -c rollup.config.build.js && yarn size",
-    "dev": "rollup -w -c rollup.config.dev.js & node ./dev-server.js",
+    "dev": "node ./dev-server.js",
     "lint": "eslint --fix src/*.js",
     "size": "size-limit"
   },
