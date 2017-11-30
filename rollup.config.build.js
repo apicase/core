@@ -1,9 +1,9 @@
-import cjs from 'rollup-plugin-commonjs'
-import uglify from 'rollup-plugin-uglify-es'
-import replace from 'rollup-plugin-replace'
-import resolve from 'rollup-plugin-node-resolve'
+const cjs = require('rollup-plugin-commonjs')
+const uglify = require('rollup-plugin-uglify-es')
+const replace = require('rollup-plugin-replace')
+const resolve = require('rollup-plugin-node-resolve')
 
-export default {
+module.exports = {
   input: 'src/index.js',
   output: {
     name: 'apicase',
