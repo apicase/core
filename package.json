@@ -13,6 +13,8 @@
     "size": "size-limit"
   },
   "dependencies": {
+    "apicase-adapter-fetch": "^0.1.2",
+    "apicase-adapter-xhr": "^0.1.2",
     "deepmerge": "^2.0.1",
     "koa-compose": "^4.0.0",
     "nanoclone": "^0.1.1",
@@ -20,7 +22,6 @@
     "path-to-regexp": "^2.1.0"
   },
   "devDependencies": {
-    "colors": "^1.1.2",
     "connect": "^3.6.5",
     "connect-proxy": "^1.0.2",
     "eslint": "^4.11.0",
@@ -34,7 +35,6 @@
     "rollup": "^0.51.8",
     "rollup-analyzer": "^1.1.0",
     "rollup-analyzer-plugin": "^1.1.1",
-    "rollup-plugin-babel": "^3.0.2",
     "rollup-plugin-commonjs": "^8.2.6",
     "rollup-plugin-livereload": "^0.6.0",
     "rollup-plugin-node-resolve": "^3.0.0",
