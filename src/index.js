@@ -2,16 +2,31 @@ var clone = require('nanoclone')
 var compose = require('koa-compose')
 var NanoEvents = require('nanoevents')
 
+var log = require('./log')
 var omit = require('./omit')
 var merge = require('./merge')
 var hooks = require('./hooks')
-var adapters = require('./adapters')
 var transformer = require('./transformer')
 var check = process.env.NODE_ENV !== 'production'
   ? require('./check')
   : require('./nocheck')
 
-var Apicase = function () {
+var fetchAdapter = require('apicase-adapter-fetch')
+var xhrAdapter = require('apicase-adapter-xhr')
+
+var Apicase = function (options) {
+  var convertedOptions = {
+    silent: false,
+    defaultAdapter: 'fetch'
+  }
+  if (options) {
+    if ('silent' in options) {
+      convertedOptions.silent = options.silent
+    }
+    if ('defaultAdapter' in options) {
+      convertedOptions.silent = options.defaultAdapter
+    }
+  }
   this.base = {
     query: {},
     hooks: {
@@ -29,27 +44,15 @@ var Apicase = function () {
   }
 
   this.options = {
-    silent: false,
-    defaultAdapter: 'resolve',
+    silent: convertedOptions.silent,
+    defaultAdapter: convertedOptions.defaultAdapter,
     adapters: {
-      resolve: {
-        callback: function (ctx) {
-          setTimeout(ctx.done, ctx.options.time || 1000, ctx.options.data)
-        }
-      },
-      reject: {
-        callback: function (ctx) {
-          setTimeout(ctx.fail, ctx.options.time || 1000, ctx.options.data)
-        }
-      },
-      testAdapter: {
-        callback: function (ctx) {
-          setTimeout(ctx.done, ctx.options.time || 1000, (ctx.options.transform && ctx.options.transform(ctx.options.data)) || ctx.options.data)
-        }
-      }
+      fetch: { callback: fetchAdapter },
+      xhr: { callback: xhrAdapter }
     }
   }
 
+  // Adds new adapter
   this.use = function (name, adapter) {
     this.options.adapters[name] =
       typeof adapter === 'function'
@@ -58,12 +61,15 @@ var Apicase = function () {
     check.isAdapterInstalledCorrectly(name, this.options.adapters)
   }
 
+  // Call installer with apicase instance and additional options
+  // use it in plugins to add new features
   this.install = function (installer, options) {
     this.bus.emit('preinstall', this)
     installer(this, options)
     this.bus.emit('postinstall', this)
   }
 
+  // Like .install but clones instance
   this.extend = function (installer, options) {
     var cloned = Object.assign({}, this)
     cloned.install(installer, options)
@@ -71,6 +77,9 @@ var Apicase = function () {
     return cloned
   }
 
+  // Creates a service from optiosn
+  // you can pass a part of query/hooks/interceptors
+  // to reduce boilerplate code
   this.of = function (options) {
     var instance = this
     var cloned = Object.assign({}, instance, {
@@ -85,9 +94,12 @@ var Apicase = function () {
     return cloned
   }
 
+  // Make API request
   this.call = function () {
     var instance = this
-    // TODO: return to .all() if it's OK
+
+    // Apicase.call(1, 2, 3) now is equal with
+    // Promise.all([Apicase.call(1), Apicase.call(2), Apicase.call(3)])
     if (arguments.length > 1) {
       var queries = []
       for (var index in arguments) {
@@ -98,116 +110,173 @@ var Apicase = function () {
       }))
     }
 
+    // First argument is options object
     var options = arguments[0]
 
+    // Meta info about hook calls (for future debugging needs)
+    // + calls abortion
     var meta = {
       isAborted: false,
       abortReason: null,
       hooks: {}
     }
 
+    // Merged options
+    // TODO: Merge strategies for query
     var o = merge(this.base, !options ? {} : {
       hooks: options.hooks,
       query: omit(['hooks', 'interceptors'], options),
       interceptors: options.interceptors
     })
 
-    o.query = o.interceptors.before.reduce((res, cb) => cb(res), o.query)
+    // Adapter callback
+    var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter]
 
-    var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter].callback
-
-    function callHooks (type, cb, context) {
-      var transformedContext =
-        o.interceptors[type]
-          ? o.interceptors[type].reduce((res, cb) => cb(res), context)
-          : context
-
-      var ctx = Object.assign({}, transformedContext, { options: o.query })
-
-      function endCallback (data, next) {
-        if (cb) {
-          cb(context.data || context.reason)
-        }
+    // Call interceptors of needed type for passed contenxt
+    function callInterceptors (type, context, callback) {
+      var result = {
+        isStateChanged: false,
+        context: clone(context)
       }
+      var interceptors = o.interceptors[type]
+      function changeState (nextContext) {
+        result.isStateChanged = true
+        result.context = nextContext
+      }
+      if (!interceptors) return result.context
+      for (var index in interceptors) {
+        var stepContext =
+          type === 'before'
+            ? interceptors[index](context)
+            : interceptors[index](context, changeState)
+        if (result.isStateChanged) return result
+        result.context = stepContext
+      }
+
+      return result
+    }
+
+    // Call hooks of needed type with passed context
+    // also accepts additional callbacks
+    function callHooks (type, context, cb) {
+      // I really don't want to mutate context/options in hooks
+      // use interceptors instead
+      var clonedContext = clone(context)
+      var clonedOptions = clone(o.query)
 
       meta.hooks[type] = {
         called: 0,
-        all: o.hooks[type].length
+        all: (o.hooks[type] && o.hooks[type].length) || 0
       }
 
-      var h = o.hooks[type]
-        .concat(endCallback)
-        .map(hooks.wrapper(type, meta))
+      var h = (o.hooks[type] || [])
+        .concat(cb || [])
+        .map(hooks.wrapper(type, meta, clonedOptions))
 
-      instance.emit(type, ctx)
+      instance.emit(type, clonedContext, clonedOptions)
 
-      return compose(h)(ctx)
-        .then(function () {
+      return compose(h)(clonedContext)
+        .then(function checkHookCalls () {
           check.isAllHooksCalled(type, meta)
+        })
+        .catch(function errorHandler (err) {
+          log.warn('Error in ' + type + ' hooks')
+          throw err
         })
     }
 
+    // Call adapter and then do some things
     function callAdapter (resolve, reject) {
-      adapter({
-        instance,
-        options: o.query,
-        done: function doneCallback (data) {
-          return callHooks('success', resolve, { data })
-        },
-        fail: function failCallback (reason) {
-          return callHooks('error', reject, { reason })
-        },
-        custom: function customCallback (type, data) {
-          return callHooks(type, [], data)
+      var done = function doneCallback (data) {
+        var res = callInterceptors('success', data)
+        if (res.isStateChanged) fail(res.context)
+        else callHooks('success', res.context, resolve)
+      }
+
+      var fail = function failCallback (reason) {
+        var res = callInterceptors('error', reason)
+        if (res.isStateChanged) done(res.context)
+        else callHooks('error', res.context, reject)
+      }
+
+      var custom = function customCallback (type, data, isError) {
+        var res = callInterceptors(type, data)
+        // If custom hook should reject promise
+        // but interceptors are changed state
+        // it will be resolved
+        // otherwise it will be rejected
+        if (res.isStateChanged) {
+          if (isError) done(res.context)
+          else fail(res.context)
+        } else {
+          callHooks(type, res.context, isError ? reject : null)
         }
+      }
+
+      adapter.callback({
+        adapter,
+        instance,
+        done,
+        fail,
+        custom,
+        options: o.query
       })
     }
+    // Transform query with interceptors
+    o.query = callInterceptors('before', o.query).context
 
     return new Promise(function makeCall (resolve, reject) {
-      callHooks('before', null, {})
-        .then(function () {
+      callHooks('before', {})
+        .then(function onBeforeHooksSuccess () {
           if (meta.isAborted) {
             callHooks('aborted', reject, { reason: meta.abortReason })
           } else {
             callAdapter(resolve, reject)
           }
         })
+        .catch(function onBeforeHooksError (err) {
+          throw err
+        })
     })
   }
 
-  // NOTE: It will be removed in next version
+  // CAUTION: It will be removed in next version
   // Now it just calls apicase.call(...queries)
   this.all = function (options) {
     return this.call.apply(this, options)
   }
 
-  // TODO: test again and rethink
-  this.map = function (callback) {
+  // Returns instance with .call() wrapped into a function
+  // that make calls with options converted by a callback
+  this.transform = function (callback) {
     return transformer.transform(this, 'call', transformer.create(callback))
   }
 
-  this.flatMap = function (callback) {
+  // Like .transform() but do .call(...options) for returned array
+  this.transformFlat = function (callback) {
     return transformer.transform(this, 'all', transformer.create(callback))
   }
 
-  this.method = function (method) {
-    this.options.pipeMethod = method
-    return this
-  }
-
+  // Calls chaining with any options
+  // accepts objects / functions with passed previous result
+  // or apicase instances (will use .call() method)
   this.queue = function (options, lastData) {
     if (!options.length) return lastData
     var instance = this
 
+    // Just call queue again without first data
     function nextQueue (data) {
       return instance.queue(options.slice(1), data)
     }
 
+    // Use .call() if it's Apicase instance
     if (options[0] instanceof Apicase) {
       return options[0].call(lastData)
         .then(nextQueue)
     }
 
+    // Make a call with options object
+    // or with options returned by function passed
     var option =
       typeof options[0] === 'function'
         ? options[0](lastData)
@@ -218,12 +287,15 @@ var Apicase = function () {
       .then(nextQueue)
   }
 
+  // Events bus to handle service calls anywhere
   this.bus = new NanoEvents()
 
+  // Shortcut for .bus.on(event, callback)
   this.on = function (event, callback) {
     return this.bus.on(event, callback)
   }
 
+  // Shortcut for .bus.emit(event, ...arguments)
   this.emit = function () {
     this.bus.emit.apply(this.bus, arguments)
   }
@@ -231,6 +303,4 @@ var Apicase = function () {
   return this
 }
 
-var instance = new Apicase()
-
-module.exports = instance
+module.exports = Apicase
