@@ -1,29 +1,34 @@
 const log = require('./log')
 
-var wrapper = function createWrapperCreator (type, meta) {
+function createAbortCallback (meta) {
+  return function abortCallback (reason) {
+    meta.isAborted = true
+    meta.abortReason = reason
+  }
+}
+
+function createWrapperCreator (type, meta, options) {
   return function createWrapper (cb) {
     return function hookWrapper (ctx, next) {
       try {
-        if (type !== 'before') {
-          cb(ctx, next)
+        // Calls abortion feature
+        if (type === 'before') {
+          cb(options, next, createAbortCallback(meta))
         } else {
-          // if (meta.isAborted) return
-          cb(ctx, next, function abortCallback (reason) {
-            meta.isAborted = true
-            meta.abortReason = reason
-          })
+          cb(ctx, options, next)
         }
+        // For future debugging ideas
         if (cb.name && cb.name !== 'endCallback') {
           meta.hooks[type].called++
         }
       } catch (err) {
-        logger(type, cb, err)
+        hookErrorLogger(type, cb, err)
       }
     }
   }
 }
 
-var logger = function hookErrorLogger (type, cb, err) {
+function hookErrorLogger (type, cb, err) {
   var name = cb.name && cb.name !== type
     ? cb.name
     : 'anonymous'
@@ -33,6 +38,6 @@ var logger = function hookErrorLogger (type, cb, err) {
 }
 
 module.exports = {
-  wrapper,
-  logger
+  wrapper: createWrapperCreator,
+  logger: hookErrorLogger
 }
