@@ -22,17 +22,17 @@ function createWrapperCreator (type, meta, options) {
           meta.hooks[type].called++
         }
       } catch (err) {
-        hookErrorLogger(type, cb, err)
+        hookErrorLogger(type, cb, meta.hooks[type].called, err)
       }
     }
   }
 }
 
-function hookErrorLogger (type, cb, err) {
+function hookErrorLogger (type, cb, index, err) {
   var name = cb.name && cb.name !== type
     ? cb.name
     : 'anonymous'
-  log.warn('Error in ' + type + ' hook')
+  log.warn('Error in ' + type + '[' + index + '] hook')
   log.warn('Hook name: ' + name)
   throw err
 }
