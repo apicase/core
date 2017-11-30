@@ -3,7 +3,6 @@ var path = require('path')
 var proxy = require('proxy-middleware')
 var rollup = require('rollup')
 var connect = require('connect')
-var livereload = require('livereload')
 var serveStatic = require('serve-static')
 
 var config = require('./rollup.config.dev.js')
@@ -21,10 +20,6 @@ server.use(serveStatic(path.resolve(__dirname, './views')))
 
 // Run server
 server.listen(8080)
-
-// Watch dist to livereload
-var liveserver = livereload.createServer({ port: 3000 })
-liveserver.watch(path.resolve(__dirname, './dist'))
 
 // Run rollup with dev config
 rollup.watch(config)
