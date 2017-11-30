@@ -2,23 +2,21 @@ var clone = require('nanoclone')
 var compose = require('koa-compose')
 var NanoEvents = require('nanoevents')
 
-var log = require('./log')
 var omit = require('./omit')
 var merge = require('./merge')
 var hooks = require('./hooks')
 var transformer = require('./transformer')
-var check = process.env.NODE_ENV !== 'production'
-  ? require('./check')
-  : require('./nocheck')
+var check = require('./check')
 
-var fetchAdapter = require('apicase-adapter-fetch')
 var xhrAdapter = require('apicase-adapter-xhr')
+var fetchAdapter = require('apicase-adapter-fetch')
 
 var Apicase = function (options) {
   var convertedOptions = {
     silent: false,
     defaultAdapter: 'fetch'
   }
+
   if (options) {
     if ('silent' in options) {
       convertedOptions.silent = options.silent
@@ -27,6 +25,7 @@ var Apicase = function (options) {
       convertedOptions.silent = options.defaultAdapter
     }
   }
+
   this.base = {
     query: {},
     hooks: {
@@ -47,8 +46,8 @@ var Apicase = function (options) {
     silent: convertedOptions.silent,
     defaultAdapter: convertedOptions.defaultAdapter,
     adapters: {
-      fetch: { callback: fetchAdapter },
-      xhr: { callback: xhrAdapter }
+      xhr: { callback: xhrAdapter },
+      fetch: { callback: fetchAdapter }
     }
   }
 
@@ -58,7 +57,9 @@ var Apicase = function (options) {
       typeof adapter === 'function'
         ? { callback: adapter }
         : adapter
-    check.isAdapterInstalledCorrectly(name, this.options.adapters)
+    if (!this.options.silent) {
+      check.isAdapterInstalledCorrectly(name, this.options.adapters)
+    }
   }
 
   // Call installer with apicase instance and additional options
@@ -177,11 +178,9 @@ var Apicase = function (options) {
 
       return compose(h)(clonedContext)
         .then(function checkHookCalls () {
-          check.isAllHooksCalled(type, meta)
-        })
-        .catch(function errorHandler (err) {
-          log.warn('Error in ' + type + ' hooks')
-          throw err
+          if (!instance.options.silent) {
+            check.isAllHooksCalled(type, meta)
+          }
         })
     }
 
@@ -233,9 +232,6 @@ var Apicase = function (options) {
           } else {
             callAdapter(resolve, reject)
           }
-        })
-        .catch(function onBeforeHooksError (err) {
-          throw err
         })
     })
   }
