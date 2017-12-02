@@ -189,13 +189,23 @@ var Apicase = function (options) {
       var done = function doneCallback (data) {
         var res = callInterceptors('success', data)
         if (res.isStateChanged) fail(res.context)
-        else callHooks('success', res.context, resolve)
+        else {
+          callHooks('success', res.context, resolve)
+            .then(() => {
+              callHooks('finished', res.context)
+            })
+        }
       }
 
       var fail = function failCallback (reason) {
         var res = callInterceptors('error', reason)
         if (res.isStateChanged) done(res.context)
-        else callHooks('error', res.context, reject)
+        else {
+          callHooks('error', res.context, reject)
+            .then(() => {
+              callHooks('finished', res.context)
+            })
+        }
       }
 
       var custom = function customCallback (type, data, isError) {
