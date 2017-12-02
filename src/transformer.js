@@ -1,5 +1,3 @@
-var log = require('./log')
-
 function createTransformer (callback) {
   return function (options) {
     return callback(options)
