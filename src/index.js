@@ -144,7 +144,7 @@ var Apicase = function (options) {
         result.isStateChanged = true
         result.context = nextContext
       }
-      if (!interceptors) return result.context
+      if (!interceptors) return result
       for (var index in interceptors) {
         var stepContext =
           type === 'before'
@@ -188,8 +188,10 @@ var Apicase = function (options) {
     function callAdapter (resolve, reject) {
       var done = function doneCallback (data) {
         var res = callInterceptors('success', data)
-        if (res.isStateChanged) fail(res.context)
-        else {
+
+        if (res.isStateChanged) {
+          fail(res.context)
+        } else {
           callHooks('success', res.context, resolve)
             .then(() => {
               callHooks('finished', res.context)
@@ -199,8 +201,10 @@ var Apicase = function (options) {
 
       var fail = function failCallback (reason) {
         var res = callInterceptors('error', reason)
-        if (res.isStateChanged) done(res.context)
-        else {
+
+        if (res.isStateChanged) {
+          done(res.context)
+        } else {
           callHooks('error', res.context, reject)
             .then(() => {
               callHooks('finished', res.context)
@@ -210,13 +214,17 @@ var Apicase = function (options) {
 
       var custom = function customCallback (type, data, isError) {
         var res = callInterceptors(type, data)
+
         // If custom hook should reject promise
         // but interceptors are changed state
         // it will be resolved
         // otherwise it will be rejected
         if (res.isStateChanged) {
-          if (isError) done(res.context)
-          else fail(res.context)
+          if (isError) {
+            done(res.context)
+          } else {
+            fail(res.context)
+          }
         } else {
           callHooks(type, res.context, isError ? reject : null)
         }
@@ -238,7 +246,7 @@ var Apicase = function (options) {
       callHooks('before', {})
         .then(function onBeforeHooksSuccess () {
           if (meta.isAborted) {
-            callHooks('aborted', reject, { reason: meta.abortReason })
+            callHooks('aborted', { reason: meta.abortReason }, reject)
           } else {
             callAdapter(resolve, reject)
           }
