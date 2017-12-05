@@ -134,7 +134,7 @@ var Apicase = function (options) {
     var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter]
 
     // Call interceptors of needed type for passed contenxt
-    function callInterceptors (type, context, callback) {
+    function callInterceptors (type, context, cbMeta) {
       var result = {
         isStateChanged: false,
         context: clone(context)
@@ -149,7 +149,7 @@ var Apicase = function (options) {
         var stepContext =
           type === 'before'
             ? interceptors[index](context)
-            : interceptors[index](context, changeState)
+            : interceptors[index](context, changeState, cbMeta || { isStateChanged: false })
         if (result.isStateChanged) return result
         result.context = stepContext
       }
@@ -187,7 +187,7 @@ var Apicase = function (options) {
     // Call adapter and then do some things
     function callAdapter (resolve, reject) {
       var done = function doneCallback (data, cbMeta) {
-        var res = callInterceptors('success', data, cbMeta && cbMeta.isStateChanged)
+        var res = callInterceptors('success', data, cbMeta)
 
         if (res.isStateChanged) {
           fail(res.context, { isStateChanged: true })
@@ -200,7 +200,7 @@ var Apicase = function (options) {
       }
 
       var fail = function failCallback (reason, cbMeta) {
-        var res = callInterceptors('error', reason, cbMeta && cbMeta.isStateChanged)
+        var res = callInterceptors('error', reason, cbMeta)
 
         if (res.isStateChanged) {
           done(res.context, { isStateChanged: true })
@@ -213,7 +213,7 @@ var Apicase = function (options) {
       }
 
       var custom = function customCallback (type, data, isError, cbMeta) {
-        var res = callInterceptors(type, data, cbMeta && cbMeta.isStateChanged)
+        var res = callInterceptors(type, data, cbMeta)
 
         // If custom hook should reject promise
         // but interceptors are changed state
