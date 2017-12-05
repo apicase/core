@@ -186,11 +186,11 @@ var Apicase = function (options) {
 
     // Call adapter and then do some things
     function callAdapter (resolve, reject) {
-      var done = function doneCallback (data) {
-        var res = callInterceptors('success', data)
+      var done = function doneCallback (data, cbMeta) {
+        var res = callInterceptors('success', data, cbMeta && cbMeta.isStateChanged)
 
         if (res.isStateChanged) {
-          fail(res.context)
+          fail(res.context, { isStateChanged: true })
         } else {
           callHooks('success', res.context, resolve)
             .then(() => {
@@ -199,11 +199,11 @@ var Apicase = function (options) {
         }
       }
 
-      var fail = function failCallback (reason) {
-        var res = callInterceptors('error', reason)
+      var fail = function failCallback (reason, cbMeta) {
+        var res = callInterceptors('error', reason, cbMeta && cbMeta.isStateChanged)
 
         if (res.isStateChanged) {
-          done(res.context)
+          done(res.context, { isStateChanged: true })
         } else {
           callHooks('error', res.context, reject)
             .then(() => {
@@ -212,8 +212,8 @@ var Apicase = function (options) {
         }
       }
 
-      var custom = function customCallback (type, data, isError) {
-        var res = callInterceptors(type, data)
+      var custom = function customCallback (type, data, isError, cbMeta) {
+        var res = callInterceptors(type, data, cbMeta && cbMeta.isStateChanged)
 
         // If custom hook should reject promise
         // but interceptors are changed state
@@ -221,9 +221,9 @@ var Apicase = function (options) {
         // otherwise it will be rejected
         if (res.isStateChanged) {
           if (isError) {
-            done(res.context)
+            done(res.context, { isStateChanged: true })
           } else {
-            fail(res.context)
+            fail(res.context, { isStateChanged: true })
           }
         } else {
           callHooks(type, res.context, isError ? reject : null)
