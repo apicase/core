@@ -2,6 +2,7 @@ var clone = require('nanoclone')
 var compose = require('koa-compose')
 var NanoEvents = require('nanoevents')
 
+var log = require('./log')
 var omit = require('./omit')
 var merge = require('./merge')
 var hooks = require('./hooks')
@@ -131,7 +132,14 @@ var Apicase = function (options) {
     })
 
     // Adapter callback
-    var adapter = this.options.adapters[o.query.adapter || this.options.defaultAdapter]
+    var adapterName = o.query.adapter || this.options.defaultAdapter
+    var adapter = this.options.adapters[adapterName]
+    if (!adapter) {
+      log.error(
+        'Adapter ' + adapterName + ' not found',
+        new ReferenceError('Adapter ' + adapterName + ' not found')
+      )
+    }
 
     // Call interceptors of needed type for passed contenxt
     function callInterceptors (type, context, cbMeta) {
@@ -230,12 +238,35 @@ var Apicase = function (options) {
         }
       }
 
+      var call = function callAnotherAdapter (name, options) {
+        if (!(name in instance.options.adapters)) {
+          log.error(
+            'Adapter ' + name + ' not found',
+            'in high-order adapter' + o.query.adapter,
+            new ReferenceError('Adapter ' + name + ' not found')
+          )
+        }
+        var adapter = instance.options.adapters[name]
+        return adapter.callback({
+          adapter,
+          instance,
+          done,
+          fail,
+          custom,
+          call,
+          options: options === undefined
+            ? o.query
+            : options
+        })
+      }
+
       adapter.callback({
         adapter,
         instance,
         done,
         fail,
         custom,
+        call,
         options: o.query
       })
     }
