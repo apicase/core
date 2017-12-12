@@ -3,30 +3,26 @@ var compose = require('koa-compose')
 var NanoEvents = require('nanoevents')
 
 var log = require('./log')
-var omit = require('./omit')
+var utils = require('./utils')
 var merge = require('./merge')
 var hooks = require('./hooks')
-var transformer = require('./transformer')
 var check = require('./check')
 
 var xhrAdapter = require('apicase-adapter-xhr')
 var fetchAdapter = require('apicase-adapter-fetch')
 
+// Global config is outside Apicase
+// because of no need to store, mutate and clone it there
+var globalConfig = {
+  silent: false,
+  defaultAdapter: 'fetch',
+  adapters: {
+    xhr: { callback: xhrAdapter },
+    fetch: { callback: fetchAdapter }
+  }
+}
+
 var Apicase = function (options) {
-  var convertedOptions = {
-    silent: false,
-    defaultAdapter: 'fetch'
-  }
-
-  if (options) {
-    if ('silent' in options) {
-      convertedOptions.silent = options.silent
-    }
-    if ('defaultAdapter' in options) {
-      convertedOptions.silent = options.defaultAdapter
-    }
-  }
-
   this.base = {
     query: {},
     hooks: {
@@ -43,38 +39,18 @@ var Apicase = function (options) {
     }
   }
 
-  this.options = {
-    silent: convertedOptions.silent,
-    defaultAdapter: convertedOptions.defaultAdapter,
-    adapters: {
-      xhr: { callback: xhrAdapter },
-      fetch: { callback: fetchAdapter }
-    }
-  }
-
-  // Adds new adapter
-  this.use = function (name, adapter) {
-    this.options.adapters[name] =
-      typeof adapter === 'function'
-        ? { callback: adapter }
-        : adapter
-    if (!this.options.silent) {
-      check.isAdapterInstalledCorrectly(name, this.options.adapters)
-    }
-  }
-
   // Call installer with apicase instance and additional options
   // use it in plugins to add new features
-  this.install = function (installer, options) {
+  this.use = function (installer, options) {
     this.bus.emit('preinstall', this)
     installer(this, options)
     this.bus.emit('postinstall', this)
   }
 
-  // Like .install but clones instance
+  // Like .use but clones instance
   this.extend = function (installer, options) {
-    var cloned = Object.assign({}, this)
-    cloned.install(installer, options)
+    var cloned = clone(this)
+    cloned.use(installer, options)
     Object.setPrototypeOf(cloned, this)
     return cloned
   }
@@ -87,7 +63,7 @@ var Apicase = function (options) {
     var cloned = Object.assign({}, instance, {
       base: merge(instance.base, {
         hooks: options.hooks,
-        query: omit(['hooks', 'interceptors'], options),
+        query: utils.omit(['hooks', 'interceptors'], options),
         interceptors: options.interceptors
       }),
       bus: clone(instance.bus)
@@ -103,13 +79,8 @@ var Apicase = function (options) {
     // Apicase.call(1, 2, 3) now is equal with
     // Promise.all([Apicase.call(1), Apicase.call(2), Apicase.call(3)])
     if (arguments.length > 1) {
-      var queries = []
-      for (var index in arguments) {
-        queries.push(arguments[index])
-      }
-      return Promise.all(queries.map(function optionsToCall (query) {
-        return instance.call(query)
-      }))
+      var queries = Array.prototype.slice.call(arguments)
+      return Promise.all(queries.map(utils.unary(instance.call)))
     }
 
     // First argument is options object
@@ -127,13 +98,13 @@ var Apicase = function (options) {
     // TODO: Merge strategies for query
     var o = merge(this.base, !options ? {} : {
       hooks: options.hooks,
-      query: omit(['hooks', 'interceptors'], options),
+      query: utils.omit(['hooks', 'interceptors'], options),
       interceptors: options.interceptors
     })
 
     // Adapter callback
-    var adapterName = o.query.adapter || this.options.defaultAdapter
-    var adapter = this.options.adapters[adapterName]
+    var adapterName = o.query.adapter || globalConfig.defaultAdapter
+    var adapter = globalConfig.adapters[adapterName]
     if (!adapter) {
       log.error(
         'Adapter ' + adapterName + ' not found',
@@ -167,32 +138,34 @@ var Apicase = function (options) {
 
     // Call hooks of needed type with passed context
     // also accepts additional callbacks
-    function callHooks (type, context, cb) {
+    function callHooks (type, context, additionalCb) {
       // I really don't want to mutate context/options in hooks
       // use interceptors instead
       var clonedContext = clone(context)
       var clonedOptions = clone(o.query)
 
+      // Meta info for debugging
       meta.hooks[type] = {
         called: 0,
         all: (o.hooks[type] && o.hooks[type].length) || 0
       }
 
       var h = (o.hooks[type] || [])
-        .concat(cb || [])
+        .concat(additionalCb || [])
         .map(hooks.wrapper(type, meta, clonedOptions))
 
       instance.emit(type, clonedContext, clonedOptions)
 
       return compose(h)(clonedContext)
         .then(function checkHookCalls () {
-          if (!instance.options.silent) {
+          if (!globalConfig.silent) {
             check.isAllHooksCalled(type, meta)
           }
         })
     }
 
     // Call adapter and then do some things
+    // TODO: reduce boilerplate code
     function callAdapter (resolve, reject) {
       var done = function doneCallback (data, cbMeta) {
         var res = callInterceptors('success', data, cbMeta)
@@ -220,7 +193,7 @@ var Apicase = function (options) {
         }
       }
 
-      var custom = function customCallback (type, data, isError, cbMeta) {
+      var customHook = function customCallback (type, data, isError, cbMeta) {
         var res = callInterceptors(type, data, cbMeta)
 
         // If custom hook should reject promise
@@ -238,7 +211,7 @@ var Apicase = function (options) {
         }
       }
 
-      var call = function callAnotherAdapter (name, options) {
+      var callAdapter = function callAnotherAdapter (name, options) {
         if (!(name in instance.options.adapters)) {
           log.error(
             'Adapter ' + name + ' not found',
@@ -252,8 +225,8 @@ var Apicase = function (options) {
           instance,
           done,
           fail,
-          custom,
-          call,
+          customHook,
+          callAdapter,
           options: options === undefined
             ? o.query
             : options
@@ -265,8 +238,8 @@ var Apicase = function (options) {
         instance,
         done,
         fail,
-        custom,
-        call,
+        customHook,
+        callAdapter,
         options: o.query
       })
     }
@@ -293,13 +266,35 @@ var Apicase = function (options) {
 
   // Returns instance with .call() wrapped into a function
   // that make calls with options converted by a callback
-  this.transform = function (callback) {
-    return transformer.transform(this, 'call', transformer.create(callback))
+  this.transform = function (wrapper) {
+    return this.extend(function callTransformer (i) {
+      var realCall = clone(i.call).bind(i)
+
+      i.call = function transformer () {
+        var options = Array.prototype.slice.call(arguments)
+          .map(utils.unary(wrapper))
+
+        return options.length <= 1
+          ? realCall(options[0])
+          : Promise.all(options.map(utils.unary(realCall)))
+      }
+    })
   }
 
-  // Like .transform() but do .call(...options) for returned array
-  this.transformFlat = function (callback) {
-    return transformer.transform(this, 'all', transformer.create(callback))
+  // Like .transform() but does .call(...options) for returned array
+  this.transformSpread = function (wrapper) {
+    return this.extend(function callSpreadTransformer (i) {
+      var realCall = clone(i.call).bind(i)
+
+      i.call = function spreadTransformer () {
+        var options = Array.prototype.slice.call(arguments)
+          .reduce((acc, cur) => acc.concat(wrapper(cur)), [])
+
+        return options.length <= 1
+          ? realCall(options[0])
+          : Promise.all(options.map(utils.unary(realCall)))
+      }
+    })
   }
 
   // Calls chaining with any options
@@ -347,5 +342,26 @@ var Apicase = function (options) {
 
   return this
 }
+
+// Add new adapter
+Apicase.addAdapter = function (name, adapter) {
+  globalConfig.adapters[name] =
+    typeof adapter === 'function'
+      ? { callback: adapter }
+      : adapter
+  if (!globalConfig.silent) {
+    check.isAdapterInstalledCorrectly(name, globalConfig.adapters)
+  }
+}
+
+// Add silent property from global config to Apicase
+Object.defineProperty(Apicase, 'silent', {
+  get () {
+    return globalConfig.silent
+  },
+  set (val) {
+    globalConfig.silent = val
+  }
+})
 
 module.exports = Apicase
