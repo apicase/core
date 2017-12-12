@@ -36,7 +36,6 @@ module.exports = function mergeOptions () {
     })),
     interceptors: mergeWithConcat(opts.map(function getInterceptors (i) {
       return get(i, 'interceptors', {})
-    })),
-    pipeMethod: opts[0].pipeMethod
+    }))
   }
 }
