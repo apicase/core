@@ -1,6 +1,6 @@
 {
   "name": "apicase-core",
-  "version": "0.4.0-beta.6",
+  "version": "0.4.0-beta.7",
   "main": "dist/index.js",
   "license": "MIT",
   "author": {
@@ -8,11 +8,9 @@
     "name": "Anton Kosykh"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.build.js && npm run size",
     "dev": "node ./dev-server.js",
     "lint": "eslint --fix src/*.js",
-    "size": "size-limit",
-    "prepare": "npm run build"
+    "size": "size-limit"
   },
   "dependencies": {
     "apicase-adapter-fetch": "^0.1.2",
