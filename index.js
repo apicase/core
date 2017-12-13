@@ -1,12 +1,11 @@
+var log = require('./src/log')
+var utils = require('./src/utils')
+var merge = require('./src/merge')
+var hooks = require('./src/hooks')
+var check = require('./src/check')
 var clone = require('nanoclone')
 var compose = require('koa-compose')
 var NanoEvents = require('nanoevents')
-
-var log = require('./log')
-var utils = require('./utils')
-var merge = require('./merge')
-var hooks = require('./hooks')
-var check = require('./check')
 
 var xhrAdapter = require('apicase-adapter-xhr')
 var fetchAdapter = require('apicase-adapter-fetch')
