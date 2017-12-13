@@ -58,7 +58,7 @@ var Apicase = function (options) {
   // Creates a service from optiosn
   // you can pass a part of query/hooks/interceptors
   // to reduce boilerplate code
-  this.of = function (options) {
+  this.service = function (options) {
     var instance = this
     var cloned = Object.assign({}, instance, {
       base: merge(instance.base, {
