@@ -7,7 +7,7 @@ module.exports = {
   output: {
     name: 'apicase',
     file: 'dist/index.js',
-    format: 'iife'
+    format: 'umd'
   },
   plugins: [
     resolve(),
