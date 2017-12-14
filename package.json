@@ -1,7 +1,7 @@
 {
   "name": "apicase-core",
   "version": "0.4.0-beta.7",
-  "main": "dist/index.js",
+  "main": "index.js",
   "license": "MIT",
   "author": {
     "email": "kelin2025@yandex.ru",
