@@ -1,7 +1,7 @@
 {
   "name": "apicase-core",
   "version": "0.4.0-beta.8",
-  "main": "index.js",
+  "main": "dist/index.js",
   "license": "MIT",
   "author": {
     "email": "kelin2025@yandex.ru",
@@ -9,6 +9,8 @@
   },
   "scripts": {
     "dev": "node ./dev-server.js",
+    "build": "rollup --config rollup.config.build.js && npm run size",
+    "prepare": "npm run build",
     "lint": "eslint --fix src/*.js",
     "size": "size-limit"
   },
