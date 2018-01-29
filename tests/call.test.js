@@ -404,6 +404,29 @@ describe('Hooks', () => {
           done()
         })
       })
+
+      it('breaks queue on reject()', done => {
+        const cb1 = jest
+          .fn()
+          .mockImplementation((payload, { reject }) => reject('hook'))
+        const cb2 = jest
+          .fn()
+          .mockImplementation((payload, { next }) => next('lol'))
+        apicase({
+          adapter: {
+            callback: (payload, { resolve }) => resolve(payload)
+          },
+          payload: -1,
+          hooks: {
+            resolve: [cb1, cb2]
+          }
+        }).catch(res => {
+          expect(cb1).toBeCalled()
+          expect(res).toBe('hook')
+          expect(cb2).not.toBeCalled()
+          done()
+        })
+      })
     })
 
     describe('reject', () => {
@@ -425,6 +448,29 @@ describe('Hooks', () => {
         }).catch(res => {
           expect(res).toBe(4)
           cbs.forEach(cb => expect(cb).toBeCalled())
+          done()
+        })
+      })
+
+      it('breaks queue on resolve()', done => {
+        const cb1 = jest
+          .fn()
+          .mockImplementation((payload, { resolve }) => resolve('hook'))
+        const cb2 = jest
+          .fn()
+          .mockImplementation((payload, { next }) => next('lol'))
+        apicase({
+          adapter: {
+            callback: (payload, { reject }) => reject(payload)
+          },
+          payload: -1,
+          hooks: {
+            reject: [cb1, cb2]
+          }
+        }).then(res => {
+          expect(cb1).toBeCalled()
+          expect(res).toBe('hook')
+          expect(cb2).not.toBeCalled()
           done()
         })
       })
