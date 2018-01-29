@@ -32,7 +32,18 @@ describe('Adapters', () => {
     })
   })
 
-  it('converts payload if has convert option', done => {})
+  it('converts payload if has convert option', done => {
+    apicase({
+      adapter: {
+        callback: (payload, { resolve }) => {
+          expect(payload).toBe(2)
+          done()
+        },
+        convert: payload => payload + 1
+      },
+      payload: 1
+    })
+  })
 
   it('resolves with data', done => {
     const callback = (payload, { resolve }) =>
@@ -476,15 +487,4 @@ describe('Hooks', () => {
       })
     })
   })
-
-  // describe('before hooks', () => {
-  //   it('accepts payload, next/resolve/reject callbacks', () => {})
-  //   it('resolves promise early after resolve call', () => {})
-  //   it('rejects promise early after reject call', () => {})
-  //   it('does not call resolve/reject hooks if meta.skipHooks is true', () => {})
-  // })
-  // describe('common', () => {
-  //   it('calls queue of hooks', () => {})
-  //   it('stops hooks queue on resolve/reject is called', () => {})
-  // })
 })
