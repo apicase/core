@@ -309,34 +309,46 @@ describe('Hooks', () => {
     })
 
     describe('resolve', () => {
-      it('rejects promise on reject call', done => {
+      it('rejects promise on reject call and calls reject hooks', done => {
+        const hook = jest
+          .fn()
+          .mockImplementation((payload, { next }) => next('lol'))
+
         apicase({
           adapter: {
             callback: (payload, { resolve }) => resolve(payload)
           },
           payload: 1,
           hooks: {
-            resolve: [(response, { reject }) => reject(response)]
+            resolve: [(response, { reject }) => reject(response)],
+            reject: [hook]
           }
         }).catch(res => {
-          expect(res).toBe(1)
+          expect(res).toBe('hook')
+          expect(hook).toBeCalled()
           done()
         })
       })
     })
 
     describe('reject', () => {
-      it('resolves promise on resolve call', done => {
+      it('resolves promise on resolve call and calls resolve hooks', done => {
+        const hook = jest
+          .fn()
+          .mockImplementation((payload, { next }) => next('lol'))
+
         apicase({
           adapter: {
             callback: (payload, { reject }) => reject(payload)
           },
           payload: 1,
           hooks: {
-            reject: [(response, { resolve }) => resolve(response)]
+            reject: [(response, { resolve }) => resolve(response)],
+            resolve: [hook]
           }
         }).then(res => {
           expect(res).toBe(1)
+          expect(hook).toBeCalled()
           done()
         })
       })
