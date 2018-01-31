@@ -19,7 +19,8 @@
     { "path": "lib/queue.js", "limit": "1 KB" },
     { "path": "lib/normalize.js", "limit": "500 B" },
     { "path": "lib/merge.js", "limit": "700 B" },
-    { "path": "lib/service.js", "limit": "1.5 KB" }
+    { "path": "lib/service.js", "limit": "1.5 KB" },
+    { "path": "index.js", "limit": "1.5 KB" }
   ],
   "dependencies": {
     "koa-compose": "^4.0.0",
