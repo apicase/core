@@ -3234,9 +3234,9 @@ nan@^2.3.0:
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.8.0.tgz#ed715f3fe9de02b57a5e6252d90a96675e1f085a"
 
-nanoclone@^0.1.5:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/nanoclone/-/nanoclone-0.1.5.tgz#2c80c672a85471ec46ba588f40cac6b5ff9de41e"
+nanoclone@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/nanoclone/-/nanoclone-0.2.0.tgz#3c48359cf810b96b9c4b39abd8cda7c02a7e399c"
 
 nanoevents@^1.0.2:
   version "1.0.2"

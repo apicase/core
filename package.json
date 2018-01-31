@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "koa-compose": "^4.0.0",
-    "nanoclone": "^0.1.5",
+    "nanoclone": "^0.2.0",
     "nanoevents": "^1.0.2"
   },
   "devDependencies": {
