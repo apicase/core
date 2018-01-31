@@ -46,9 +46,9 @@ describe('Payloads', () => {
   })
 
   it('if adapter has .merge() callabck, return its value (newest adapter prefered)', () => {
-    const from = { adapter: { merge: (from, to) => from + to + 1 }, payload: 1 }
-    const to = { adapter: { merge: (from, to) => from + to + 5 }, payload: 2 }
-    expect(mergeOptions([from, to]).payload).toBe(8)
+    const from = { adapter: { merge: (from, to) => to }, payload: 1 }
+    const to = { adapter: { merge: (from, to) => from + to }, payload: 2 }
+    expect(mergeOptions([from, to]).payload).toBe(3)
   })
 
   it('otherwise, returns the second one', () => {
@@ -118,6 +118,52 @@ describe('Hooks', () => {
       before: [console.log, console.debug],
       resolve: [console.warn],
       reject: [console.error]
+    })
+  })
+})
+
+describe('More', () => {
+  it('merges more than 2 services', () => {
+    const merge = (a, b) => a + b
+    const a = {
+      adapter: { callback: console.log, merge },
+      payload: 1,
+      hooks: { before: [console.log] }
+    }
+    const b = { payload: 2, hooks: { before: [console.log] } }
+    const c = { payload: 3, hooks: { resolve: [console.log] } }
+    expect(mergeOptions([a, b, c])).toEqual({
+      adapter: {
+        callback: console.log,
+        merge
+      },
+      payload: 6,
+      meta: {},
+      hooks: {
+        before: [console.log, console.log],
+        resolve: [console.log],
+        reject: []
+      }
+    })
+  })
+
+  it('accepts opts passed as a function and invokes them before merge', () => {
+    let date
+    const a = () => ({
+      payload: 'payload'
+    })
+    const b = () => ({
+      payload: 'test'
+    })
+    expect(mergeOptions([a, b])).toEqual({
+      adapter: null,
+      payload: 'test',
+      meta: {},
+      hooks: {
+        before: [],
+        resolve: [],
+        reject: []
+      }
     })
   })
 })
