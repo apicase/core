@@ -4,7 +4,7 @@ jest.setTimeout(1000)
 
 describe('Adapters', () => {
   it('is called', done => {
-    const callback = jest.fn().mockImplementation((_, { resolve }) => resolve())
+    const callback = jest.fn().mockImplementation(({ resolve }) => resolve())
 
     apicase({
       adapter: {
@@ -17,7 +17,7 @@ describe('Adapters', () => {
   })
 
   it('accepts correct payload and has callbacks', done => {
-    const callback = (payload, { resolve, reject }) => {
+    const callback = ({ payload, resolve, reject }) => {
       expect(payload).toBe(2)
       expect(typeof resolve).toBe('function')
       expect(typeof reject).toBe('function')
@@ -35,7 +35,7 @@ describe('Adapters', () => {
   it('converts payload if has convert option', done => {
     apicase({
       adapter: {
-        callback: (payload, { resolve }) => {
+        callback: ({ payload, resolve }) => {
           expect(payload).toBe(2)
           done()
         },
@@ -46,7 +46,7 @@ describe('Adapters', () => {
   })
 
   it('resolves with data', done => {
-    const callback = (payload, { resolve }) =>
+    const callback = ({ payload, resolve }) =>
       setTimeout(resolve, 200, payload + 1)
 
     apicase({
@@ -59,7 +59,7 @@ describe('Adapters', () => {
   })
 
   it('rejects with data', done => {
-    const callback = (payload, { reject }) =>
+    const callback = ({ payload, reject }) =>
       setTimeout(reject, 200, payload + 1)
 
     apicase({
@@ -74,7 +74,7 @@ describe('Adapters', () => {
   it('works with global adapters', done => {
     apicase.addAdapters({
       resolve: {
-        callback: (payload, { resolve }) => resolve(payload + 1)
+        callback: ({ payload, resolve }) => resolve(payload + 1)
       }
     })
     apicase({
@@ -92,10 +92,11 @@ describe('Hooks', () => {
     it('calls before hooks before call', done => {
       const hook = jest
         .fn()
-        .mockImplementation((res, { next }) => next(res + 1))
+        .mockImplementation(({ payload, next }) => next(payload + 1))
+
       apicase({
         adapter: {
-          callback: (payload, { resolve }) => resolve(payload)
+          callback: ({ payload, resolve }) => resolve(payload)
         },
         payload: 1,
         hooks: {
@@ -110,10 +111,11 @@ describe('Hooks', () => {
     it('calls resolve hooks on adapter resolve', done => {
       const hook = jest
         .fn()
-        .mockImplementation((res, { next }) => next(res + 1))
+        .mockImplementation(({ payload, next }) => next(payload + 1))
+
       apicase({
         adapter: {
-          callback: (payload, { resolve }) => resolve(payload)
+          callback: ({ payload, resolve }) => resolve(payload)
         },
         payload: 1,
         hooks: {
@@ -128,10 +130,11 @@ describe('Hooks', () => {
     it('calls reject hooks on adapter reject', done => {
       const hook = jest
         .fn()
-        .mockImplementation((res, { next }) => next(res + 1))
+        .mockImplementation(({ payload, next }) => next(payload + 1))
+
       apicase({
         adapter: {
-          callback: (payload, { reject }) => reject(payload)
+          callback: ({ payload, reject }) => reject(payload)
         },
         payload: 1,
         hooks: {
@@ -148,19 +151,19 @@ describe('Hooks', () => {
     it('before hook accepts payload, next/resolve/reject callbacks', done => {
       apicase({
         adapter: {
-          callback: (payload, { resolve }) => resolve(payload),
-          payload: 1,
-          hooks: {
-            before: [
-              (payload, { next, resolve, reject }) => {
-                expect(response).toBe(1)
-                expect(typeof next).toBe('function')
-                expect(typeof resolve).toBe('function')
-                expect(typeof reject).toBe('function')
-                return next(response)
-              }
-            ]
-          }
+          callback: ({ payload, resolve }) => resolve(payload)
+        },
+        payload: 1,
+        hooks: {
+          before: [
+            ({ payload, next, resolve, reject }) => {
+              expect(payload).toBe(1)
+              expect(typeof next).toBe('function')
+              expect(typeof resolve).toBe('function')
+              expect(typeof reject).toBe('function')
+              return next(payload)
+            }
+          ]
         }
       }).then(() => {
         done()
@@ -170,16 +173,16 @@ describe('Hooks', () => {
     it('resolve hook accepts response, next/reject callbacks', done => {
       apicase({
         adapter: {
-          callback: (payload, { resolve }) => resolve(payload)
+          callback: ({ payload, resolve }) => resolve(payload)
         },
         payload: 1,
         hooks: {
           resolve: [
-            (response, { next, reject }) => {
-              expect(response).toBe(1)
+            ({ payload, next, reject }) => {
+              expect(payload).toBe(1)
               expect(typeof next).toBe('function')
               expect(typeof reject).toBe('function')
-              return next(response)
+              return next(payload)
             }
           ]
         }
@@ -191,12 +194,12 @@ describe('Hooks', () => {
     it('reject hook accepts error, next/resolve callbacks', done => {
       apicase({
         adapter: {
-          callback: (payload, { reject }) => reject(payload)
+          callback: ({ payload, reject }) => reject(payload)
         },
         payload: 1,
         hooks: {
           reject: [
-            (response, { next, resolve }) => {
+            ({ payload, next, resolve }) => {
               expect(response).toBe(1)
               expect(typeof next).toBe('function')
               expect(typeof resolve).toBe('function')
@@ -215,11 +218,11 @@ describe('Hooks', () => {
       it('resolves promise on resolve()', done => {
         apicase({
           adapter: {
-            callback: (payload, { resolve }) => resolve(2)
+            callback: ({ payload, resolve }) => resolve(2)
           },
           payload: 1,
           hooks: {
-            before: [(payload, { resolve }) => resolve(3)]
+            before: [({ payload, resolve }) => resolve(3)]
           }
         }).then(res => {
           expect(res).toBe(3)
@@ -230,11 +233,11 @@ describe('Hooks', () => {
       it('rejects promise on reject()', done => {
         apicase({
           adapter: {
-            callback: (payload, { resolve }) => resolve(2)
+            callback: ({ payload, resolve }) => resolve(2)
           },
           payload: 1,
           hooks: {
-            before: [(payload, { reject }) => reject(3)]
+            before: [({ payload, reject }) => reject(3)]
           }
         }).catch(res => {
           expect(res).toBe(3)
@@ -245,7 +248,7 @@ describe('Hooks', () => {
       it('does not call adapter on resolve()', done => {
         const callback = jest
           .fn()
-          .mockImplementation((payload, { resolve }) => resolve(2))
+          .mockImplementation(({ payload, resolve }) => resolve(2))
 
         apicase({
           adapter: {
@@ -253,7 +256,7 @@ describe('Hooks', () => {
           },
           payload: 1,
           hooks: {
-            before: [(payload, { resolve }) => resolve(3)]
+            before: [({ payload, resolve }) => resolve(3)]
           }
         }).then(res => {
           expect(callback).not.toBeCalled()
@@ -264,7 +267,7 @@ describe('Hooks', () => {
       it('does not call adapter on reject()', done => {
         const callback = jest
           .fn()
-          .mockImplementation((payload, { resolve }) => resolve(2))
+          .mockImplementation(({ payload, resolve }) => resolve(2))
 
         apicase({
           adapter: {
@@ -272,7 +275,7 @@ describe('Hooks', () => {
           },
           payload: 1,
           hooks: {
-            before: [(payload, { reject }) => resolve(3)]
+            before: [({ payload, reject }) => resolve(3)]
           }
         }).catch(res => {
           expect(callback).not.toBeCalled()
@@ -283,15 +286,15 @@ describe('Hooks', () => {
       it('does not call resolve hooks with meta { skipHooks: true }', done => {
         const hook = jest
           .fn()
-          .mockImplementation((res, { next }) => next(res + 1))
+          .mockImplementation(({ payload, next }) => next(payload + 1))
 
         apicase({
           adapter: {
-            callback: (payload, { resolve }) => resolve(payload)
+            callback: ({ payload, resolve }) => resolve(payload)
           },
           payload: 1,
           hooks: {
-            before: [(payload, { resolve }) => resolve(3, { skipHooks: true })],
+            before: [({ payload, resolve }) => resolve(3, { skipHooks: true })],
             resolve: [hook]
           }
         }).then(res => {
@@ -303,15 +306,15 @@ describe('Hooks', () => {
       it('does not call reject hooks with meta { skipHooks: true }', done => {
         const hook = jest
           .fn()
-          .mockImplementation((res, { next }) => next(res + 1))
+          .mockImplementation(({ payload, next }) => next(payload + 1))
 
         apicase({
           adapter: {
-            callback: (payload, { resolve }) => resolve(payload)
+            callback: ({ payload, resolve }) => resolve(payload)
           },
           payload: 1,
           hooks: {
-            before: [(payload, { reject }) => reject(3, { skipHooks: true })],
+            before: [({ payload, reject }) => reject(3, { skipHooks: true })],
             reject: [hook]
           }
         }).catch(res => {
@@ -325,15 +328,15 @@ describe('Hooks', () => {
       it('rejects promise on reject() and does not call reject hooks', done => {
         const hook = jest
           .fn()
-          .mockImplementation((payload, { next }) => next('lol'))
+          .mockImplementation(({ payload, next }) => next('lol'))
 
         apicase({
           adapter: {
-            callback: (payload, { resolve }) => resolve(payload)
+            callback: ({ payload, resolve }) => resolve(payload)
           },
           payload: 1,
           hooks: {
-            resolve: [(response, { reject }) => reject('hook')],
+            resolve: [({ payload, reject }) => reject('hook')],
             reject: [hook]
           }
         }).catch(res => {
@@ -348,15 +351,15 @@ describe('Hooks', () => {
       it('resolves promise on resolve call and does not call resolve hooks', done => {
         const hook = jest
           .fn()
-          .mockImplementation((payload, { next }) => next('lol'))
+          .mockImplementation(({ payload, next }) => next('lol'))
 
         apicase({
           adapter: {
-            callback: (payload, { reject }) => reject(payload)
+            callback: ({ payload, reject }) => reject(payload)
           },
           payload: 1,
           hooks: {
-            reject: [(response, { resolve }) => resolve('hook')],
+            reject: [({ payload, resolve }) => resolve('hook')],
             resolve: [hook]
           }
         }).then(res => {
@@ -374,12 +377,12 @@ describe('Hooks', () => {
         const cbs = new Array(5)
           .fill(null)
           .map((v, i) =>
-            jest.fn().mockImplementation((payload, { next }) => next(i))
+            jest.fn().mockImplementation(({ payload, next }) => next(i))
           )
 
         apicase({
           adapter: {
-            callback: (payload, { resolve }) => resolve(payload)
+            callback: ({ payload, resolve }) => resolve(payload)
           },
           payload: -1,
           hooks: {
@@ -398,12 +401,12 @@ describe('Hooks', () => {
         const cbs = new Array(5)
           .fill(null)
           .map((v, i) =>
-            jest.fn().mockImplementation((payload, { next }) => next(i))
+            jest.fn().mockImplementation(({ payload, next }) => next(i))
           )
 
         apicase({
           adapter: {
-            callback: (payload, { resolve }) => resolve(payload)
+            callback: ({ payload, resolve }) => resolve(payload)
           },
           payload: -1,
           hooks: {
@@ -419,13 +422,13 @@ describe('Hooks', () => {
       it('breaks queue on reject()', done => {
         const cb1 = jest
           .fn()
-          .mockImplementation((payload, { reject }) => reject('hook'))
+          .mockImplementation(({ payload, reject }) => reject('hook'))
         const cb2 = jest
           .fn()
-          .mockImplementation((payload, { next }) => next('lol'))
+          .mockImplementation(({ payload, next }) => next('lol'))
         apicase({
           adapter: {
-            callback: (payload, { resolve }) => resolve(payload)
+            callback: ({ payload, resolve }) => resolve(payload)
           },
           payload: -1,
           hooks: {
@@ -445,12 +448,12 @@ describe('Hooks', () => {
         const cbs = new Array(5)
           .fill(null)
           .map((v, i) =>
-            jest.fn().mockImplementation((payload, { next }) => next(i))
+            jest.fn().mockImplementation(({ payload, next }) => next(i))
           )
 
         apicase({
           adapter: {
-            callback: (payload, { reject }) => reject(payload)
+            callback: ({ payload, reject }) => reject(payload)
           },
           payload: -1,
           hooks: {
@@ -466,13 +469,13 @@ describe('Hooks', () => {
       it('breaks queue on resolve()', done => {
         const cb1 = jest
           .fn()
-          .mockImplementation((payload, { resolve }) => resolve('hook'))
+          .mockImplementation(({ payload, resolve }) => resolve('hook'))
         const cb2 = jest
           .fn()
-          .mockImplementation((payload, { next }) => next('lol'))
+          .mockImplementation(({ payload, next }) => next('lol'))
         apicase({
           adapter: {
-            callback: (payload, { reject }) => reject(payload)
+            callback: ({ payload, reject }) => reject(payload)
           },
           payload: -1,
           hooks: {
