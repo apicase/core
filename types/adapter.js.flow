@@ -1,0 +1,10 @@
+// @flow
+export type ApiAdapter<T> = {
+  callback: (opts: {
+    payload: T,
+    resolve: any => any,
+    reject: any => any
+  }) => any,
+  convert?: (from: T) => T,
+  merge?: (from: T, to: T) => T
+}
