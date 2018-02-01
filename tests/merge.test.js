@@ -19,10 +19,10 @@ describe('Adapters', () => {
     expect(mergeOptions([from, to]).adapter).toEqual(to.adapter)
   })
 
-  it('if both provided, returns the second one', () => {
+  it('if both provided, returns the first one', () => {
     const from = { adapter: { callback: console.log } }
     const to = { adapter: { callback: console.debug } }
-    expect(mergeOptions([from, to]).adapter).toEqual(to.adapter)
+    expect(mergeOptions([from, to]).adapter).toEqual(from.adapter)
   })
 })
 
@@ -45,9 +45,9 @@ describe('Payloads', () => {
     expect(mergeOptions([from, to]).payload).toBe(1)
   })
 
-  it('if adapter has .merge() callabck, return its value (newest adapter prefered)', () => {
-    const from = { adapter: { merge: (from, to) => to }, payload: 1 }
-    const to = { adapter: { merge: (from, to) => from + to }, payload: 2 }
+  it('if adapter has .merge() callabck, return its value', () => {
+    const from = { adapter: { merge: (from, to) => from + to }, payload: 1 }
+    const to = { adapter: { merge: (from, to) => to }, payload: 2 }
     expect(mergeOptions([from, to]).payload).toBe(3)
   })
 
