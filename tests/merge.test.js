@@ -1,60 +1,46 @@
 import mergeOptions from '../lib/merge'
 
 describe('Adapters', () => {
-  it('if none provided, returns null', () => {
+  it('accepts adapter as the first argument', () => {
+    const adapter = {
+      callback: ({ payload, resolve }) => resolve(payload)
+    }
     const from = {}
     const to = {}
-    expect(mergeOptions([from, to]).adapter).toEqual(null)
-  })
-
-  it('if only first provided, returns the first one', () => {
-    const from = { adapter: { callback: console.log } }
-    const to = {}
-    expect(mergeOptions([from, to]).adapter).toEqual(from.adapter)
-  })
-
-  it('if only second provided, returns the second one', () => {
-    const from = {}
-    const to = { adapter: { callback: console.log } }
-    expect(mergeOptions([from, to]).adapter).toEqual(to.adapter)
-  })
-
-  it('if both provided, returns the first one', () => {
-    const from = { adapter: { callback: console.log } }
-    const to = { adapter: { callback: console.debug } }
-    expect(mergeOptions([from, to]).adapter).toEqual(from.adapter)
+    expect(mergeOptions(adapter, [from, to]).adapter).toEqual(adapter)
   })
 })
 
 describe('Payloads', () => {
-  it('if none provided, returns null', () => {
+  it('if none provided, returns an empty oblect', () => {
     const from = {}
     const to = {}
-    expect(mergeOptions([from, to]).payload).toBe(null)
+    expect(mergeOptions(null, [from, to]).payload).toEqual({})
   })
 
   it('if only first provided, returns the first one', () => {
-    const from = { payload: 1 }
+    const from = { a: 1 }
     const to = {}
-    expect(mergeOptions([from, to]).payload).toBe(1)
+    expect(mergeOptions(null, [from, to]).payload).toEqual({ a: 1 })
   })
 
   it('if only second provided, returns the second one', () => {
     const from = {}
-    const to = { payload: 1 }
-    expect(mergeOptions([from, to]).payload).toBe(1)
+    const to = { a: 1 }
+    expect(mergeOptions(null, [from, to]).payload).toEqual({ a: 1 })
   })
 
   it('if adapter has .merge() callabck, return its value', () => {
-    const from = { adapter: { merge: (from, to) => from + to }, payload: 1 }
-    const to = { adapter: { merge: (from, to) => to }, payload: 2 }
-    expect(mergeOptions([from, to]).payload).toBe(3)
+    const adapter = { merge: (from, to) => ({ a: from.a + to.a }) }
+    const from = { a: 1 }
+    const to = { a: 2 }
+    expect(mergeOptions(null, [from, to]).payload).toEqual({ a: 2 })
   })
 
-  it('otherwise, returns the second one', () => {
-    const from = { payload: 1 }
-    const to = { payload: 2 }
-    expect(mergeOptions([from, to]).payload).toBe(2)
+  it('otherwise, assigns them', () => {
+    const from = { a: 1 }
+    const to = { b: 2 }
+    expect(mergeOptions(null, [from, to]).payload).toEqual({ a: 1, b: 2 })
   })
 })
 
@@ -62,7 +48,7 @@ describe('Meta', () => {
   it('just merges meta', () => {
     const from = { meta: { a: 1, b: 2 } }
     const to = { meta: { a: 2, c: 2 } }
-    expect(mergeOptions([from, to]).meta).toEqual({
+    expect(mergeOptions(null, [from, to]).meta).toEqual({
       a: 2,
       b: 2,
       c: 2
@@ -74,7 +60,7 @@ describe('Hooks', () => {
   it('if none provided, returns default hooks object', () => {
     const from = {}
     const to = {}
-    expect(mergeOptions([from, to]).hooks).toEqual({
+    expect(mergeOptions(null, [from, to]).hooks).toEqual({
       before: [],
       resolve: [],
       reject: []
@@ -84,7 +70,7 @@ describe('Hooks', () => {
   it('if only first provided, returns normalized first object', () => {
     const from = { hooks: { before: [console.log] } }
     const to = {}
-    expect(mergeOptions([from, to]).hooks).toEqual({
+    expect(mergeOptions(null, [from, to]).hooks).toEqual({
       before: [console.log],
       resolve: [],
       reject: []
@@ -94,7 +80,7 @@ describe('Hooks', () => {
   it('if only second provided, returns normalized second object', () => {
     const from = {}
     const to = { hooks: { before: [console.log] } }
-    expect(mergeOptions([from, to]).hooks).toEqual({
+    expect(mergeOptions(null, [from, to]).hooks).toEqual({
       before: [console.log],
       resolve: [],
       reject: []
@@ -114,7 +100,7 @@ describe('Hooks', () => {
         reject: [console.error]
       }
     }
-    expect(mergeOptions([from, to]).hooks).toEqual({
+    expect(mergeOptions(null, [from, to]).hooks).toEqual({
       before: [console.log, console.debug],
       resolve: [console.warn],
       reject: [console.error]
@@ -124,20 +110,19 @@ describe('Hooks', () => {
 
 describe('More', () => {
   it('merges more than 2 services', () => {
-    const merge = (a, b) => a + b
+    const adapter = {
+      callback: console.log,
+      merge: (a, b) => ({ foo: (a.foo || '') + b.foo })
+    }
     const a = {
-      adapter: { callback: console.log, merge },
-      payload: 1,
+      foo: 'A',
       hooks: { before: [console.log] }
     }
-    const b = { payload: 2, hooks: { before: [console.log] } }
-    const c = { payload: 3, hooks: { resolve: [console.log] } }
-    expect(mergeOptions([a, b, c])).toEqual({
-      adapter: {
-        callback: console.log,
-        merge
-      },
-      payload: 6,
+    const b = { foo: 'B', hooks: { before: [console.log] } }
+    const c = { foo: 'C', hooks: { resolve: [console.log] } }
+    expect(mergeOptions(adapter, [a, b, c])).toEqual({
+      adapter,
+      payload: { foo: 'ABC' },
       meta: {},
       hooks: {
         before: [console.log, console.log],
@@ -150,14 +135,20 @@ describe('More', () => {
   it('accepts opts passed as a function and invokes them before merge', () => {
     let date
     const a = () => ({
-      payload: 'payload'
+      a: 'payload',
+      b: 'lol'
     })
     const b = () => ({
-      payload: 'test'
+      b: 'test',
+      c: 'foo'
     })
-    expect(mergeOptions([a, b])).toEqual({
+    expect(mergeOptions(null, [a, b])).toEqual({
       adapter: null,
-      payload: 'test',
+      payload: {
+        a: 'payload',
+        b: 'test',
+        c: 'foo'
+      },
       meta: {},
       hooks: {
         before: [],
