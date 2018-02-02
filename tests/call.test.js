@@ -92,13 +92,14 @@ describe('Hooks', () => {
     it('calls before hooks before call', done => {
       const hook = jest
         .fn()
-        .mockImplementation(({ payload, next }) => next(payload + 1))
+        .mockImplementation(({ payload, next }) => next({ num: payload.num + 1 }))
 
-      apicase({
-        adapter: {
+      const adapter = {
           callback: ({ payload, resolve }) => resolve(payload)
-        },
-        payload: 1,
+        }
+
+      apicase(adapter)({
+        num: 1
         hooks: {
           before: [hook]
         }
