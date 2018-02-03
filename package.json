@@ -1,6 +1,6 @@
 {
   "name": "apicase-core",
-  "version": "0.6.0-beta.1",
+  "version": "0.6.0-beta.2",
   "description": "Core library to make API calls with any adapter",
   "main": "index.js",
   "repository": "https://github.com/kelin2025/apicase-core",
@@ -20,19 +20,19 @@
     },
     {
       "path": "lib/all.js",
-      "limit": "1 KB"
+      "limit": "1.5 KB"
     },
     {
       "path": "lib/queue.js",
-      "limit": "1 KB"
+      "limit": "1.5 KB"
     },
     {
       "path": "lib/normalize.js",
-      "limit": "500 B"
+      "limit": "1 KB"
     },
     {
       "path": "lib/merge.js",
-      "limit": "700 B"
+      "limit": "1 KB"
     },
     {
       "path": "lib/service.js",
