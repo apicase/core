@@ -2,22 +2,19 @@ import ApiService from '../lib/service'
 
 describe('Service creation', () => {
   it('creates a service with partial passed payload', () => {
-    const callback = ({ payload, resolve }) => resolve(1)
-    const payload = { a: 'test' }
-    const hook = ({ payload, resolve, reject }) => resolve(payload)
-
-    const service = new ApiService({
-      adapter: {
-        callback
-      },
-      payload,
+    const adapter = {
+      callback: ({ payload, resolve }) => resolve(1)
+    }
+    const opts = {
+      a: 'test',
       hooks: {
-        before: [hook]
+        before: [({ payload, resolve, reject }) => resolve(payload)]
       }
-    })
-    expect(service.opts[0].adapter.callback).toBe(callback)
-    expect(service.opts[0].payload).toBe(payload)
-    expect(service.opts[0].hooks.before[0]).toBe(hook)
+    }
+
+    const service = new ApiService(adapter, opts)
+    expect(service.adapter).toBe(adapter)
+    expect(service.opts[0]).toBe(opts)
   })
 
   it('has .extend() and .call() methods', () => {
@@ -36,14 +33,14 @@ describe('using extend() method', () => {
 
   it('pushes next options to array of opts', () => {
     const payload1 = {
-      payload: 1,
+      a: 1,
       hooks: { before: [console.log] }
     }
     const payload2 = {
-      payload: 2,
+      a: 2,
       hooks: { success: [console.log] }
     }
-    const service = new ApiService(payload1)
+    const service = new ApiService(null, payload1)
     const service2 = service.extend(payload2)
 
     expect(service.opts[0]).toBe(payload1)
@@ -110,26 +107,28 @@ describe('using extend() method', () => {
 
 describe('using call() method', () => {
   it('merges service payload with passed in call() method', done => {
-    const service = new ApiService({
-      adapter: {
-        callback: ({ payload, resolve }) => {
-          expect(payload).toBe('foo')
-          resolve(payload)
-        }
-      },
-      payload: 1,
+    const adapter = {
+      callback: ({ payload, resolve }) => {
+        expect(payload).toEqual({ a: 'foo' })
+        resolve(payload)
+      }
+    }
+    const service = new ApiService(adapter, {
+      a: 1,
       hooks: {
-        resolve: [({ payload, next }) => next(payload + ' bar')]
+        resolve: [({ payload, next }) => next({ a: payload.a + ' bar' })]
       }
     })
 
     service
       .call({
-        payload: 'foo',
-        hooks: { resolve: [({ payload, next }) => next(payload + ' baz')] }
+        a: 'foo',
+        hooks: {
+          resolve: [({ payload, next }) => next({ a: payload.a + ' baz' })]
+        }
       })
       .then(res => {
-        expect(res).toBe('foo bar baz')
+        expect(res).toEqual({ a: 'foo bar baz' })
         done()
       })
   })
