@@ -1,4 +1,4 @@
-import apicase from '../lib/call'
+import apicase from '../lib/apicase'
 
 jest.setTimeout(1000)
 

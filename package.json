@@ -15,7 +15,7 @@
   },
   "size-limit": [
     {
-      "path": "lib/call.js",
+      "path": "lib/apicase.js",
       "limit": "1 KB"
     },
     {
