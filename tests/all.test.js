@@ -3,26 +3,26 @@ import callAll from '../lib/all'
 it('applies apicase to all payloads and call all of them', done => {
   const cb1 = jest
     .fn()
-    .mockImplementation(({ payload, resolve }) => resolve(payload))
+    .mockImplementation(({ payload, resolve }) => resolve(payload.a))
   const cb2 = jest
     .fn()
-    .mockImplementation(({ payload, resolve }) => resolve(payload))
+    .mockImplementation(({ payload, resolve }) => resolve(payload.a))
   const cb3 = jest
     .fn()
-    .mockImplementation(({ payload, resolve }) => resolve(payload))
+    .mockImplementation(({ payload, resolve }) => resolve(payload.a))
 
   callAll([
     {
       adapter: { callback: cb1 },
-      payload: 1
+      a: 1
     },
     {
       adapter: { callback: cb2 },
-      payload: 2
+      a: 2
     },
     {
       adapter: { callback: cb3 },
-      payload: 3
+      a: 3
     }
   ]).then(res => {
     expect(cb1).toBeCalled()
@@ -36,21 +36,21 @@ it('returns all results (like Promise.all)', done => {
   callAll([
     {
       adapter: {
-        callback: ({ payload, resolve }) => setTimeout(resolve, 3000, payload)
+        callback: ({ payload, resolve }) => setTimeout(resolve, 3000, payload.a)
       },
-      payload: 1
+      a: 1
     },
     {
       adapter: {
-        callback: ({ payload, resolve }) => setTimeout(resolve, 1000, payload)
+        callback: ({ payload, resolve }) => setTimeout(resolve, 1000, payload.a)
       },
-      payload: 2
+      a: 2
     },
     {
       adapter: {
-        callback: ({ payload, resolve }) => setTimeout(resolve, 2000, payload)
+        callback: ({ payload, resolve }) => setTimeout(resolve, 2000, payload.a)
       },
-      payload: 3
+      a: 3
     }
   ]).then(res => {
     expect(res).toEqual([1, 2, 3])
