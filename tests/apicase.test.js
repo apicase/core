@@ -468,4 +468,72 @@ describe('Hooks', () => {
       })
     })
   })
+
+  describe('custom', () => {
+    it('calls custom hook when adapter does it', done => {
+      const adapter = {
+        callback: ({ payload, resolve, callHook }) => {
+          callHook('test', payload)
+          resolve('adapter')
+        }
+      }
+      const cb1 = jest
+        .fn()
+        .mockImplementation(({ payload, resolve }) => resolve('hook'))
+
+      apicase(adapter)({
+        hooks: {
+          test: [cb1]
+        }
+      }).then(res => {
+        expect(res).toBe('adapter')
+        expect(cb1).toBeCalled()
+        done()
+      })
+    })
+
+    it('resolves promise on resolve call (if it was resolved before adapter completion)', done => {
+      const adapter = {
+        callback: ({ payload, resolve, callHook }) => {
+          callHook('test', payload)
+          setTimeout(resolve, 1000, 'adapter')
+        }
+      }
+      const cb1 = jest
+        .fn()
+        .mockImplementation(({ payload, resolve }) => resolve('hook'))
+
+      apicase(adapter)({
+        hooks: {
+          test: [cb1]
+        }
+      }).then(res => {
+        expect(res).toBe('hook')
+        expect(cb1).toBeCalled()
+        done()
+      })
+    })
+
+    it('rejects promise on reject call (if it was rejected before adapter completion)', done => {
+      const adapter = {
+        callback: ({ payload, resolve, callHook }) => {
+          callHook('test', payload)
+          setTimeout(resolve, 1000, 'adapter')
+        }
+      }
+      const cb1 = jest
+        .fn()
+        .mockImplementation(({ payload, reject }) => reject('hook'))
+
+      apicase(adapter)({
+        hooks: {
+          test: [cb1]
+        }
+      }).catch(res => {
+        expect(res).toBe('hook')
+        expect(cb1).toBeCalled()
+        done()
+      })
+    })
+  })
 })
