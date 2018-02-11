@@ -1,6 +1,6 @@
 # apicase-core
 
-**1.5 KB** library to organize your APIs in a smart way.
+**2 KB** library to organize your APIs in a smart way.
 
 ## Introduction
 
@@ -15,6 +15,20 @@ Here is apicase - unified way to create a separated API layer.
 * Instead of binding to **one** API, it uses _adapters_ to work with **any** API interface. It allows you not to be limited by HTTP-only requests but websockets, graphql or even web workers (if you are crazy enough)
 * Using _middlewares_ to handle, change on-fly or cancel at all API calls so you can easily use loggers,
 * Sometimes we need something more than just service. So apicase has _services_ with **unlimited inheritance**
+
+## Small usage example
+
+```javascript
+import apicase from 'apicase-core'
+import fetch from 'apicase-adapter-fetch'
+
+const fetchAPI = apicase(fetch)
+
+fetchAPI({
+  url: '/api/posts/:id',
+  params: { id: 1 }
+}).then(console.log)
+```
 
 ## Documentation
 

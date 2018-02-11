@@ -1,6 +1,6 @@
 {
   "name": "apicase-core",
-  "version": "0.6.0-beta.4",
+  "version": "0.6.0-beta.5",
   "description": "Core library to make API calls with any adapter",
   "main": "index.js",
   "repository": "https://github.com/kelin2025/apicase-core",
@@ -16,7 +16,7 @@
   "size-limit": [
     {
       "path": "lib/apicase.js",
-      "limit": "1 KB"
+      "limit": "1.5 KB"
     },
     {
       "path": "lib/all.js",
@@ -36,15 +36,14 @@
     },
     {
       "path": "lib/service.js",
-      "limit": "1.5 KB"
+      "limit": "2 KB"
     },
     {
       "path": "index.js",
-      "limit": "1.5 KB"
+      "limit": "2 KB"
     }
   ],
   "dependencies": {
-    "koa-compose": "^4.0.0",
     "nanoclone": "^0.2.0",
     "nanoevents": "^1.0.2"
   },
