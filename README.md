@@ -18,7 +18,7 @@ Here is apicase - unified way to create a separated API layer.
 
 ## Documentation
 
-In progress...
+[**Click here**](https://kelin2025.gitbooks.io/apicase)
 
 ## Author
 
