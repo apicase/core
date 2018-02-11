@@ -36,19 +36,19 @@ it('returns all results (like Promise.all)', done => {
   callAll([
     {
       adapter: {
-        callback: ({ payload, resolve }) => setTimeout(resolve, 3000, payload.a)
+        callback: ({ payload, resolve }) => setTimeout(resolve, 300, payload.a)
       },
       a: 1
     },
     {
       adapter: {
-        callback: ({ payload, resolve }) => setTimeout(resolve, 1000, payload.a)
+        callback: ({ payload, resolve }) => setTimeout(resolve, 100, payload.a)
       },
       a: 2
     },
     {
       adapter: {
-        callback: ({ payload, resolve }) => setTimeout(resolve, 2000, payload.a)
+        callback: ({ payload, resolve }) => setTimeout(resolve, 200, payload.a)
       },
       a: 3
     }
