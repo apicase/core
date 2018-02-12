@@ -45,7 +45,6 @@
     }
   ],
   "dependencies": {
-    "nanoclone": "^0.2.0",
     "nanoevents": "^1.0.2",
     "nanoutils": "^0.0.13"
   },
