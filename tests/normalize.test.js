@@ -1,4 +1,4 @@
-import normalizeOptions from '../lib/normalize'
+var normalizeOptions = require('../cjs/normalize')
 
 describe('Default options', () => {
   const res = normalizeOptions()

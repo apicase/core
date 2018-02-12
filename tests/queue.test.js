@@ -1,5 +1,5 @@
-import queue from '../lib/queue'
-import ApiService from '../lib/service'
+var queue = require('../cjs/queue')
+var ApiService = require('../cjs/service')
 
 it('creates queue of apicase calls that are executed in turn', done => {
   const cb1 = jest.fn().mockImplementation(({ payload, resolve }) => {

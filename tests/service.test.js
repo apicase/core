@@ -1,4 +1,4 @@
-import ApiService from '../lib/service'
+var ApiService = require('../cjs/service')
 
 describe('Service creation', () => {
   it('creates a service with partial passed payload', () => {

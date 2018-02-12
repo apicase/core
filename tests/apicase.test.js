@@ -1,4 +1,4 @@
-import apicase from '../lib/apicase'
+var apicase = require('../cjs/apicase')
 
 jest.setTimeout(1000)
 

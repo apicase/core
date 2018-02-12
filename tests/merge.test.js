@@ -1,4 +1,4 @@
-import mergeOptions from '../lib/merge'
+var mergeOptions = require('../cjs/merge')
 
 describe('Adapters', () => {
   it('accepts adapter as the first argument', () => {
