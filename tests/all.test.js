@@ -1,4 +1,4 @@
-import callAll from '../lib/all'
+var callAll = require('../cjs/all')
 
 it('applies apicase to all payloads and call all of them', done => {
   const cb1 = jest
