@@ -61,6 +61,7 @@ typings/
 .vscode
 
 # Build details
+es/
 cjs/
 lib/index.js
 

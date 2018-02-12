@@ -2,7 +2,8 @@
   "name": "apicase-core",
   "version": "0.6.0-beta.5",
   "description": "Core library to make API calls with any adapter",
-  "main": "index.js",
+  "main": "cjs/apicase.js",
+  "module": "es/index.js",
   "repository": "https://github.com/kelin2025/apicase-core",
   "author": "Anton Kosykh <kelin2025@yandex.ru>",
   "license": "MIT",
@@ -10,46 +11,47 @@
     "lint": "eslint --fix *.js",
     "size": "size-limit",
     "test": "jest",
-    "build:cjs": "babel lib --out-dir cjs --ignore test.js",
-    "prepublish": "npm run build:cjs"
+    "build": "node ./build.js",
+    "prepublish": "npm run build"
   },
   "size-limit": [
     {
-      "path": "lib/apicase.js",
+      "path": "es/apicase.js",
       "limit": "1.5 KB"
     },
     {
-      "path": "lib/all.js",
+      "path": "es/all.js",
       "limit": "1.5 KB"
     },
     {
-      "path": "lib/queue.js",
+      "path": "es/queue.js",
       "limit": "1.5 KB"
     },
     {
-      "path": "lib/normalize.js",
+      "path": "es/normalize.js",
       "limit": "1 KB"
     },
     {
-      "path": "lib/merge.js",
+      "path": "es/merge.js",
       "limit": "1 KB"
     },
     {
-      "path": "lib/service.js",
+      "path": "es/service.js",
       "limit": "2 KB"
     },
     {
-      "path": "index.js",
-      "limit": "2 KB"
+      "path": "es/index.js",
+      "limit": "5 KB"
     }
   ],
   "dependencies": {
     "nanoclone": "^0.2.0",
-    "nanoevents": "^1.0.2"
+    "nanoevents": "^1.0.2",
+    "nanoutils": "^0.0.13"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-plugin-nanoutils": "^0.1.1",
     "babel-plugin-transform-es2015-modules-simple-commonjs": "^0.3.0",
     "eslint": "^4.16.0",
     "eslint-config-standard": "^11.0.0-beta.0",
@@ -58,6 +60,7 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "jest": "^22.1.4",
+    "rimraf": "^2.6.2",
     "rollup": "^0.55.1",
     "rollup-plugin-commonjs": "^8.3.0",
     "rollup-plugin-node-resolve": "^3.0.2",
