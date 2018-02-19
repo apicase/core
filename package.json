@@ -1,10 +1,10 @@
 {
-  "name": "apicase-core",
-  "version": "0.6.0-beta.5",
+  "name": "@apicase/core",
+  "version": "0.7.0-beta.1",
   "description": "Core library to make API calls with any adapter",
   "main": "cjs/apicase.js",
   "module": "es/index.js",
-  "repository": "https://github.com/kelin2025/apicase-core",
+  "repository": "https://github.com/apicase/core",
   "author": "Anton Kosykh <kelin2025@yandex.ru>",
   "license": "MIT",
   "scripts": {
