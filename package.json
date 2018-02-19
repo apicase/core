@@ -2,17 +2,16 @@
   "name": "@apicase/core",
   "version": "0.7.0-beta.1",
   "description": "Core library to make API calls with any adapter",
-  "main": "cjs/apicase.js",
-  "module": "es/index.js",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "private": false,
   "repository": "https://github.com/apicase/core",
   "author": "Anton Kosykh <kelin2025@yandex.ru>",
   "license": "MIT",
   "scripts": {
     "lint": "eslint --fix *.js",
     "size": "size-limit",
-    "test": "jest",
-    "build": "node ./build.js",
-    "prepublish": "npm run build"
+    "test": "jest"
   },
   "size-limit": [
     {
