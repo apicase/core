@@ -12,27 +12,18 @@ Here is apicase - unified way to create a separated API layer.
 
 ## General features
 
-* Instead of binding to **one** API, it uses _adapters_ to work with **any** API interface. It allows you not to be limited by HTTP-only requests but websockets, graphql or even web workers (if you are crazy enough)
-* Using _middlewares_ to handle, change on-fly or cancel at all API calls so you can easily use loggers,
-* Sometimes we need something more than just service. So apicase has _services_ with **unlimited inheritance**
+* **events-based** requests handling
+* **middlewares** to update/change-on-fly/undo/redo API calls
+* **adapters** instead of concrete tools (fetch/xhr)
+* **services** with unlimited inheritance
 
-## Small usage example
+## TODO
 
-```javascript
-import apicase from 'apicase-core'
-import fetch from 'apicase-adapter-fetch'
-
-const fetchAPI = apicase(fetch)
-
-fetchAPI({
-  url: '/api/posts/:id',
-  params: { id: 1 }
-}).then(console.log)
-```
-
-## Documentation
-
-[**Click here**](https://kelin2025.gitbooks.io/apicase)
+* [ ] Complete `adapter-fetch` and `adapter-xhr`
+* [ ] Complete `apiQueue` and `apiAll` helpers
+* [ ] Rewrite tests for actual version
+* [ ] Rewrite `apicase-services`
+* [ ] Create `apicase-devtools`
 
 ## Author
 
