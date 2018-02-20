@@ -8,10 +8,16 @@
   "repository": "https://github.com/apicase/core",
   "author": "Anton Kosykh <kelin2025@yandex.ru>",
   "license": "MIT",
+  "config": {
+    "ghooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
   "scripts": {
     "lint": "eslint --fix *.js",
     "size": "size-limit",
-    "test": "jest"
+    "test": "jest",
+    "prepublish": "node build.js && npm run size"
   },
   "size-limit": [
     {
@@ -24,7 +30,7 @@
     },
     {
       "path": "es/queue.js",
-      "limit": "1.5 KB"
+      "limit": "2 KB"
     },
     {
       "path": "es/normalize.js",
@@ -36,7 +42,7 @@
     },
     {
       "path": "es/service.js",
-      "limit": "2 KB"
+      "limit": "3 KB"
     },
     {
       "path": "es/index.js",
@@ -57,6 +63,7 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
+    "ghooks": "^2.0.2",
     "jest": "^22.1.4",
     "rimraf": "^2.6.2",
     "rollup": "^0.55.1",
