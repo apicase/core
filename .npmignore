@@ -1,4 +1,5 @@
 lib/
 tests/
 .babelrc
+build.js
 rollup.config.js
