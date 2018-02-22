@@ -1,3 +1,9 @@
 {
-  "plugins": ["nanoutils"]
+  "plugins": ["nanoutils"],
+  "env": {
+    "test": {
+      "presets": ["env"],
+      "plugins": [["nanoutils", { "cjs": true }]]
+    }
+  }
 }
