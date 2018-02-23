@@ -27,6 +27,7 @@ describe('Calls', () => {
       success: false,
       pending: true,
       started: true,
+      cancelled: false,
       payload: { a: 1 },
       result: {}
     })
@@ -122,39 +123,181 @@ describe('Adapters', () => {
 
 describe('Hooks', () => {
   describe('Before hooks', () => {
-    it('calls before hooks queue', done => {
-      const before = new Array(3)
-        .fill(null)
-        .map(i =>
-          jest.fn(({ payload, next }) => next({ ...payload, a: payload.a + 1 }))
-        )
+    it('is called before request', done => {
+      const before = jest.fn(({ payload, next }) => {
+        expect(callback).not.toBeCalled()
+        next(payload)
+      })
+      const callback = jest.fn(({ payload, resolve }) => {
+        expect(before).toBeCalled()
+        resolve(payload)
+      })
 
-      apicase(resolveAdapter)({ a: 1, hooks: { before } }).on(
+      apicase({ callback })({ a: 1, hooks: { before } }).on('resolve', res => {
+        done()
+      })
+    })
+
+    it('updates payload before adapter call', done => {
+      const before = jest.fn(({ payload, next }) =>
+        next({
+          ...payload,
+          a: payload.a + 1
+        })
+      )
+      const callback = jest.fn(({ payload, resolve }) => {
+        expect(payload).toEqual({ a: 2, b: 1 })
+        resolve(payload)
+      })
+      const payload = { a: 1, b: 1, hooks: { before } }
+      apicase({ callback })(payload).on('resolve', () => {
+        done()
+      })
+    })
+
+    it('resolves/rejects request without adapter call', done => {
+      const success = jest.fn(({ payload, resolve }) => resolve(payload))
+      const fail = jest.fn(({ payload, reject }) => reject(payload))
+      const callback = jest.fn(({ payload, resolve }) => resolve(payload))
+
+      const doReq = apicase({ callback })
+
+      doReq({ a: 1, hooks: { before: success } }).on('resolve', res => {
+        expect(res).toEqual({ a: 1 })
+        doReq({ a: 2, hooks: { before: fail } }).on('reject', res => {
+          expect(res).toEqual({ a: 2 })
+          expect(callback).not.toBeCalled()
+          done()
+        })
+      })
+    })
+  })
+
+  describe('Resolve hooks', () => {
+    it('is called on request resolve', done => {
+      const resolve = jest.fn(({ payload, next }) => next({ a: 2 }))
+
+      apicase(resolveAdapter)({ a: 1, hooks: { resolve } }).on(
         'resolve',
         res => {
-          expect(res.a).toBe(4)
-          before.forEach(i => expect(i).toBeCalled())
+          expect(res).toEqual({ a: 2 })
+          expect(resolve).toBeCalled()
           done()
         }
       )
     })
+
+    it('is not called on request reject', done => {
+      const resolve = jest.fn(({ payload, next }) => next({ a: 2 }))
+
+      apicase(rejectAdapter)({ a: 1, hooks: { resolve } }).on('reject', res => {
+        expect(res).toEqual({ a: 1 })
+        expect(resolve).not.toBeCalled()
+        done()
+      })
+    })
+
+    it('can reject call', done => {
+      const resolve = jest.fn(({ payload, reject }) => reject({ a: 2 }))
+      const reject = jest.fn(({ payload, next }) => next({ a: 3 }))
+      const payload = { a: 1, hooks: { resolve, reject } }
+
+      apicase(resolveAdapter)(payload).on('reject', res => {
+        expect(res).toEqual({ a: 3 })
+        expect(resolve).toBeCalled()
+        expect(reject).toBeCalled()
+        done()
+      })
+    })
   })
 
-  describe('Resolve hooks', () => {})
+  describe('Reject hooks', () => {
+    it('is called on request reject', done => {
+      const reject = jest.fn(({ payload, next }) => next({ a: 2 }))
 
-  describe('Reject hooks', () => {})
+      apicase(rejectAdapter)({ a: 1, hooks: { reject } }).on('reject', res => {
+        expect(res).toEqual({ a: 2 })
+        expect(reject).toBeCalled()
+        done()
+      })
+    })
+
+    it('is not called on request resolve', done => {
+      const reject = jest.fn(({ payload, next }) => next({ a: 2 }))
+
+      apicase(resolveAdapter)({ a: 1, hooks: { reject } }).on(
+        'resolve',
+        res => {
+          expect(res).toEqual({ a: 1 })
+          expect(reject).not.toBeCalled()
+          done()
+        }
+      )
+    })
+
+    it('can resolve call', done => {
+      const reject = jest.fn(({ payload, resolve }) => resolve({ a: 2 }))
+      const resolve = jest.fn(({ payload, next }) => next({ a: 3 }))
+      const payload = { a: 1, hooks: { resolve, reject } }
+
+      apicase(rejectAdapter)(payload).on('resolve', res => {
+        expect(res).toEqual({ a: 3 })
+        expect(resolve).toBeCalled()
+        expect(reject).toBeCalled()
+        done()
+      })
+    })
+  })
 })
 
 describe('Events', () => {
-  it('emits start event on request start', () => {})
+  it('emits finish event on request finish', async done => {
+    const finishA = jest.fn(payload => expect(payload).toEqual({ a: 1 }))
+    const finishB = jest.fn(payload => expect(payload).toEqual({ a: 1 }))
 
-  it('emits finish event on request finish', () => {})
+    await apicase(resolveAdapter)({ a: 1 }).on('finish', finishA)
+    await apicase(rejectAdapter)({ a: 1 }).on('finish', finishB)
+    expect(finishA).toBeCalled()
+    expect(finishB).toBeCalled()
+    done()
+  })
 
-  it('emits cancel event on request cancel', () => {})
+  it('emits cancel event on request cancel', async done => {
+    const cancel = jest.fn(() => {})
+    const callback = ({ setCancelCallback, payload, resolve }) => {
+      setCancelCallback(cancel)
+      setTimeout(resolve, 500, payload)
+    }
 
-  it('emits resolve event on adapter resolve', () => {})
+    const a = apicase({ callback })({ a: 1 }).on('cancel', cancel)
+    await a.cancel()
+    expect(cancel).toBeCalled()
+    done()
+  })
 
-  it('emits reject event on adapter reject', () => {})
+  it('emits resolve event on adapter resolve', async done => {
+    const resolve = jest.fn(result => {
+      expect(result).toEqual({ a: 1 })
+    })
+
+    await apicase(resolveAdapter)({ a: 1 }).on('resolve', resolve)
+    expect(resolve).toBeCalled()
+    await apicase(rejectAdapter)({ a: 1 }).on('resolve', resolve)
+    expect(resolve).toHaveBeenCalledTimes(1)
+    done()
+  })
+
+  it('emits reject event on adapter resolve', async done => {
+    const reject = jest.fn(result => {
+      expect(result).toEqual({ a: 1 })
+    })
+
+    await apicase(rejectAdapter)({ a: 1 }).on('reject', reject)
+    expect(reject).toBeCalled()
+    await apicase(resolveAdapter)({ a: 1 }).on('reject', reject)
+    expect(reject).toHaveBeenCalledTimes(1)
+    done()
+  })
 
   it('emits change:state event on state change', () => {})
 
@@ -163,4 +306,14 @@ describe('Events', () => {
   it('emits change:result event on result change', () => {})
 })
 
-describe('State', () => {})
+describe('State', () => {
+  describe('success', () => {})
+
+  describe('pending', () => {})
+
+  describe('started', () => {})
+
+  describe('payload', () => {})
+
+  describe('result', () => {})
+})
