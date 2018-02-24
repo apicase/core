@@ -1,6 +1,6 @@
 {
   "name": "@apicase/core",
-  "version": "0.7.0-beta.6",
+  "version": "0.7.0-beta.7",
   "description": "Core library to make API calls with any adapter",
   "main": "es/index.js",
   "module": "es/index.js",
@@ -23,7 +23,7 @@
   "size-limit": [
     {
       "path": "es/apicase.js",
-      "limit": "1.5 KB"
+      "limit": "2 KB"
     },
     {
       "path": "es/all.js",
