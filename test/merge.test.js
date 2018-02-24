@@ -8,8 +8,8 @@ it('normalizes obj before merge', () => {
     meta: {},
     hooks: {
       before: [],
-      resolve: [],
-      reject: []
+      done: [],
+      fail: []
     }
   })
 })
@@ -18,40 +18,37 @@ describe('Hooks', () => {
   it('merges hooks with concatenation', () => {
     const p1 = {
       hooks: {
-        resolve: [() => {}]
+        done: [() => {}]
       }
     }
     const p2 = {
       hooks: {
-        resolve: [() => {}]
+        done: [() => {}]
       }
     }
     const merged = mergeOptions(null, [p1, p2])
     expect(merged).toHaveProperty('hooks')
-    expect(merged.hooks).toHaveProperty('resolve')
-    expect(merged.hooks.resolve).toEqual([
-      p1.hooks.resolve[0],
-      p2.hooks.resolve[0]
-    ])
+    expect(merged.hooks).toHaveProperty('done')
+    expect(merged.hooks.done).toEqual([p1.hooks.done[0], p2.hooks.done[0]])
   })
 
   it('correctly works with hooks declared as just a function (not array)', () => {
     const p1 = {
       hooks: {
         before: () => {},
-        resolve: [() => {}]
+        done: [() => {}]
       }
     }
     const p2 = {
       hooks: {
-        resolve: [() => {}],
-        reject: () => {}
+        done: [() => {}],
+        fail: () => {}
       }
     }
     expect(mergeOptions(null, [p1, p2]).hooks).toEqual({
       before: [p1.hooks.before],
-      resolve: [p1.hooks.resolve[0], p2.hooks.resolve[0]],
-      reject: [p2.hooks.reject]
+      done: [p1.hooks.done[0], p2.hooks.done[0]],
+      fail: [p2.hooks.fail]
     })
   })
 })

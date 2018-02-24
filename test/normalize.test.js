@@ -5,20 +5,20 @@ describe('Hooks', () => {
     const opts = {
       hooks: {
         before() {},
-        resolve: [() => {}, () => {}]
+        done: [() => {}, () => {}]
       }
     }
     const h = normalizeOptions(null, opts).hooks
     expect(h.before).toEqual([opts.hooks.before])
-    expect(h.resolve).toEqual([opts.hooks.resolve[0], opts.hooks.resolve[1]])
+    expect(h.done).toEqual([opts.hooks.done[0], opts.hooks.done[1]])
   })
 
   it('creates default hooks properties', () => {
     const h = normalizeOptions(null, {}).hooks
     expect(h).toEqual({
       before: [],
-      resolve: [],
-      reject: []
+      done: [],
+      fail: []
     })
   })
 })
@@ -64,8 +64,8 @@ describe('Applying normalize 2+ times', () => {
       meta: {},
       hooks: {
         before: [opts.hooks.before],
-        resolve: [],
-        reject: []
+        done: [],
+        fail: []
       }
     })
   })
