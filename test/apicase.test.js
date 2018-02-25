@@ -43,7 +43,7 @@ describe('Adapters', () => {
       expect(result).toEqual({})
       expect(typeof resolve).toBe('function')
       expect(typeof reject).toBe('function')
-      resolve(payload)
+      setTimeout(resolve, 100, payload)
     })
 
     apicase({ callback })({ a: 1 }).on('done', res => {
@@ -55,7 +55,7 @@ describe('Adapters', () => {
     const createState = () => ({ a: 1, b: 2 })
     const callback = jest.fn(({ payload, result, resolve }) => {
       expect(result).toEqual({ a: 1, b: 2 })
-      resolve(payload)
+      setTimeout(resolve, 100, payload)
     })
 
     apicase({ callback, createState })({ a: 2 }).on('done', res => {
@@ -270,26 +270,32 @@ describe('Events', () => {
   })
 
   it('emits done event on adapter done', async doneCb => {
-    const done = jest.fn(result => {
+    const done1 = jest.fn(result => {
+      expect(result).toEqual({ a: 1 })
+    })
+    const done2 = jest.fn(result => {
       expect(result).toEqual({ a: 1 })
     })
 
-    await apicase(resolveAdapter)({ a: 1 }).on('done', done)
-    expect(done).toBeCalled()
-    await apicase(rejectAdapter)({ a: 1 }).on('done', done)
-    expect(done).toHaveBeenCalledTimes(1)
+    await apicase(resolveAdapter)({ a: 1 }).on('done', done1)
+    expect(done1).toBeCalled()
+    await apicase(rejectAdapter)({ a: 1 }).on('done', done2)
+    expect(done2).not.toBeCalled()
     doneCb()
   })
 
   it('emits fail event on adapter fail', async done => {
-    const fail = jest.fn(result => {
+    const fail1 = jest.fn(result => {
+      expect(result).toEqual({ a: 1 })
+    })
+    const fail2 = jest.fn(result => {
       expect(result).toEqual({ a: 1 })
     })
 
-    await apicase(rejectAdapter)({ a: 1 }).on('fail', fail)
-    expect(fail).toBeCalled()
-    await apicase(resolveAdapter)({ a: 1 }).on('fail', fail)
-    expect(fail).toHaveBeenCalledTimes(1)
+    await apicase(rejectAdapter)({ a: 1 }).on('fail', fail1)
+    expect(fail1).toBeCalled()
+    await apicase(resolveAdapter)({ a: 1 }).on('fail', fail2)
+    expect(fail2).not.toBeCalled()
     done()
   })
 

@@ -62,6 +62,9 @@ describe('Applying normalize 2+ times', () => {
       adapter: null,
       payload: { a: 1, b: 2 },
       meta: {},
+      options: {
+        immediate: true
+      },
       hooks: {
         before: [opts.hooks.before],
         done: [],
