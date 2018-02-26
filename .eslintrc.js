@@ -11,6 +11,6 @@ module.exports = {
     /* It's better to have indent for call expr with multi-lines */
     'indent': ['error', 2, { 'CallExpression': { 'arguments': 1 } }],
     /* Prettier doesn't support space before paren */
-    'space-before-function-paren': 0
+    'space-before-function-paren': ['error', 'never']
   }
 }
