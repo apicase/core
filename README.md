@@ -20,6 +20,33 @@ Here is apicase - unified way to create a separated API layer.
 ## Documentation
 [**Go to documentation**](kelin2025.gitbooks.io/apicase/content/)
 
+## Request example
+```javascript
+import { apicase } from '@apicase/core'
+improt fetch from '@apicase/adapter-fetch'
+
+const doRequest = apicase(fetch)
+
+const { success, result } = await doRequest({
+  url: '/api/posts/:id',
+  method: 'POST'
+  params: { id: 1 },
+  body: {
+    title: 'Hello',
+    text: 'This is Apicase'
+  },
+  headers: {
+    token: localStorage.getItem('token')
+  }
+})
+
+if (success) {
+  console.log('Yay!', result)
+} else {
+  console.log('Hey...', result)
+}
+```
+
 ## TODO
 
 * [ ] Complete `adapter-fetch` and `adapter-xhr`
