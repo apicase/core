@@ -63,6 +63,7 @@ describe('Applying normalize 2+ times', () => {
       payload: { a: 1, b: 2 },
       meta: {},
       options: {
+        once: true,
         immediate: true
       },
       hooks: {

@@ -7,6 +7,7 @@ it('normalizes obj before merge', () => {
     payload: {},
     meta: {},
     options: {
+      once: true,
       immediate: true
     },
     hooks: {

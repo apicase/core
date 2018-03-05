@@ -1,4 +1,14 @@
 import { apicase } from '../lib/apicase'
+import { pick } from 'nanoutils'
+
+const pickState = pick([
+  'success',
+  'pending',
+  'started',
+  'cancelled',
+  'payload',
+  'result'
+])
 
 const resolveAdapter = {
   callback: ({ payload, resolve }) => setTimeout(resolve, 25, payload)
@@ -23,7 +33,7 @@ describe('Calls', () => {
 
   it('returns thenable object with state, cancel() and on() methods', async done => {
     const res = apicase(resolveAdapter)({ a: 1 })
-    expect(res.state).toEqual({
+    expect(pickState(res)).toEqual({
       success: false,
       pending: true,
       started: true,
