@@ -17,6 +17,9 @@ Here is apicase - unified way to create a separated API layer.
 * **adapters** instead of concrete tools (fetch/xhr)
 * **services** with unlimited inheritance
 
+## Documentation
+[**Go to documentation**](kelin2025.gitbooks.io/apicase/content/)
+
 ## TODO
 
 * [ ] Complete `adapter-fetch` and `adapter-xhr`
