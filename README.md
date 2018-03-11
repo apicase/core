@@ -26,7 +26,7 @@ Here is apicase - unified way to create a separated API layer.
 Wrap adapter into `apicase` method and use it like it's Axios
 ```javascript
 import { apicase } from '@apicase/core'
-improt fetch from '@apicase/adapter-fetch'
+import fetch from '@apicase/adapter-fetch'
 
 const doRequest = apicase(fetch)
 
