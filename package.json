@@ -2,7 +2,7 @@
   "name": "@apicase/core",
   "version": "0.7.0-beta.15",
   "description": "Core library to make API calls with any adapter",
-  "main": "es/index.js",
+  "main": "cjs/index.js",
   "module": "es/index.js",
   "private": false,
   "repository": "https://github.com/apicase/core",
@@ -71,9 +71,10 @@
     "jest": "^22.1.4",
     "regenerator-runtime": "^0.11.1",
     "rimraf": "^2.6.2",
-    "rollup": "^0.55.1",
-    "rollup-plugin-commonjs": "^8.3.0",
-    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup": "^0.56.5",
+    "rollup-plugin-babel": "^3.0.3",
+    "rollup-plugin-commonjs": "8.3.0",
+    "rollup-plugin-node-resolve": "^3.2.0",
     "size-limit": "^0.14.0"
   }
 }
