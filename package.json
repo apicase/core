@@ -18,16 +18,12 @@
     "size": "size-limit",
     "test": "jest",
     "check": "npm run lint && npm run test && npm run size",
-    "build": "node build.js && npm run check",
+    "build": "babel lib --out-dir cjs --ignore test.js && babel lib --out-dir es --ignore test.js --no-babelrc --plugins=nanoutils",
     "prepublish": "npm run build"
   },
   "size-limit": [
     {
       "path": "es/apicase.js",
-      "limit": "2 KB"
-    },
-    {
-      "path": "es/all.js",
       "limit": "2 KB"
     },
     {
@@ -56,6 +52,7 @@
     "nanoutils": "^0.0.15"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-jest": "^22.4.0",
     "babel-plugin-nanoutils": "^0.1.1",
