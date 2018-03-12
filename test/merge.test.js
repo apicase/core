@@ -1,4 +1,4 @@
-import { mergeOptions } from '../lib/merge'
+import mergeOptions from '../lib/merge'
 
 it('normalizes obj before merge', () => {
   expect(mergeOptions(null, [{}, {}])).toEqual({
@@ -22,12 +22,12 @@ describe('Hooks', () => {
   it('merges hooks with concatenation', () => {
     const p1 = {
       hooks: {
-        done: [() => {}]
+        done: [() => { }]
       }
     }
     const p2 = {
       hooks: {
-        done: [() => {}]
+        done: [() => { }]
       }
     }
     const merged = mergeOptions(null, [p1, p2])
@@ -39,14 +39,14 @@ describe('Hooks', () => {
   it('correctly works with hooks declared as just a function (not array)', () => {
     const p1 = {
       hooks: {
-        before: () => {},
-        done: [() => {}]
+        before: () => { },
+        done: [() => { }]
       }
     }
     const p2 = {
       hooks: {
-        done: [() => {}],
-        fail: () => {}
+        done: [() => { }],
+        fail: () => { }
       }
     }
     expect(mergeOptions(null, [p1, p2]).hooks).toEqual({
