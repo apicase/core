@@ -4,8 +4,8 @@ describe('Hooks', () => {
   it('converts hooks to array of hooks', () => {
     const opts = {
       hooks: {
-        before() { },
-        done: [() => { }, () => { }]
+        before() {},
+        done: [() => {}, () => {}]
       }
     }
     const h = normalizeOptions(null, opts).hooks
@@ -53,7 +53,7 @@ describe('Applying normalize 2+ times', () => {
       a: 1,
       b: 2,
       hooks: {
-        before: () => { }
+        before: () => {}
       }
     }
     const res = normalizeOptions(null, normalizeOptions(null, opts))
@@ -63,7 +63,7 @@ describe('Applying normalize 2+ times', () => {
       payload: { a: 1, b: 2 },
       meta: {},
       options: {
-        once: true,
+        once: false,
         immediate: true
       },
       hooks: {
