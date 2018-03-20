@@ -20,7 +20,7 @@ Here is apicase - unified way to create a separated API layer.
 ## Documentation
 
 ### Full docs
-[**Read on gitbook**](kelin2025.gitbooks.io/apicase/content/)
+[**Read on gitbook**](https://kelin2025.gitbooks.io/apicase/content/)
 
 ### Basic request
 Wrap adapter into `apicase` method and use it like it's Axios
