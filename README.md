@@ -1,14 +1,16 @@
 # apicase-core
 
-**2 KB** library to organize your APIs in a smart way.
+A **2 KB** library to organize your APIs in a smart way.
 
 ## Introduction
 
-There are so many questions about how to good organize work with API in frontend applications  
-Some people just don't care about and use native _fetch_, but it's not so flexible and extensible  
-Some people create their own wrappers (some classes or just functions, or json objects, no matter), but it often becomes unusable in another projects because it was made for specific APIs  
-In addition, there's another problem - work API is often not separated from application to isolated layer. It means that you can't use your APIs with different projects or with different frameworks  
-Here is apicase - unified way to create a separated API layer.
+There are so many questions about how to properly organize and work with APIs in frontend applications.
+
+Some people just don't think about it much; they use native `fetch`, but it's not very flexible or extensible. Some people create their own wrappers (classes, functions, or json objects), but those often become unusable in other projects because they were made for specific APIs.
+
+There's another problem—the API is often not separated from the application into an isolated layer. It means that you can't reuse your APIs with different projects or frameworks.
+
+Here is apicase—a unified way to create that isolated API layer.
 
 ## General features
 
