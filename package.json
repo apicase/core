@@ -1,6 +1,6 @@
 {
   "name": "@apicase/core",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "Core library to make API calls with any adapter",
   "main": "cjs/index.js",
   "module": "es/index.js",
@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "lint": "eslint --fix *.js",
+    "lint": "eslint --fix lib/*.js",
     "size": "size-limit",
     "test": "jest",
     "check": "npm run lint && npm run test && npm run size",
