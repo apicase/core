@@ -32,7 +32,7 @@ const doRequest = apicase(fetch)
 
 const { success, result } = await doRequest({
   url: '/api/posts/:id',
-  method: 'POST'
+  method: 'POST',
   params: { id: 1 },
   body: {
     title: 'Hello',
