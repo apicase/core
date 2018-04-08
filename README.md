@@ -95,11 +95,7 @@ queue.push(SendMessage.doRequest, { body: { message: 'works' } })
 
 ## TODO
 
-* [x] Complete `adapter-fetch` and `adapter-xhr`
-* [x] Complete `ApiQueue`
-* [ ] Improve debugging
-* [ ] Rewrite tests for actual version
-* [ ] Rewrite `apicase-services`
+* [ ] Add plugins support to make work much easier
 * [ ] Create `apicase-devtools`
 
 ## Author
