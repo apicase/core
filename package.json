@@ -1,6 +1,6 @@
 {
   "name": "@apicase/core",
-  "version": "0.11.0",
+  "version": "0.12.0-beta.1",
   "description": "Core library to make API calls with any adapter",
   "main": "cjs/index.js",
   "module": "es/index.js",
