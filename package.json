@@ -1,6 +1,6 @@
 {
   "name": "@apicase/core",
-  "version": "0.12.4",
+  "version": "0.13.0-alpha",
   "description": "Core library to make API calls with any adapter",
   "main": "cjs/index.js",
   "module": "es/index.js",
@@ -18,8 +18,7 @@
     "size": "size-limit",
     "test": "jest",
     "check": "npm run lint && npm run test && npm run size",
-    "build":
-      "babel lib --out-dir cjs --ignore test.js && babel lib --out-dir es --ignore test.js --no-babelrc --plugins=nanoutils",
+    "build": "babel lib --out-dir cjs --ignore test.js && babel lib --out-dir es --ignore test.js --no-babelrc --plugins=nanoutils",
     "prepublish": "npm run build"
   },
   "size-limit": [
