@@ -13,13 +13,12 @@
         "strict": false,
         "noInterop": true
       }
-    ]
+    ],
+    "transform-flow-comments"
   ],
   "env": {
     "test": {
-      "presets": [
-        "env"
-      ],
+      "presets": ["env"],
       "plugins": [
         [
           "nanoutils",
