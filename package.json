@@ -48,6 +48,7 @@
     }
   ],
   "dependencies": {
+    "babel-plugin-transform-flow-comments": "^6.22.0",
     "nanoevents": "^1.0.2",
     "nanoutils": "^0.0.15"
   },
@@ -64,6 +65,7 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
+    "flow-bin": "^0.70.0",
     "ghooks": "^2.0.2",
     "jest": "^22.1.4",
     "regenerator-runtime": "^0.11.1",
