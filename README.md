@@ -22,10 +22,13 @@ Here is apicase—a unified way to create that isolated API layer.
 ## Documentation
 
 ### Full docs
+
 [**Read on gitbook**](https://kelin2025.gitbooks.io/apicase/content/)
 
 ### Basic request
+
 Wrap adapter into `apicase` method and use it like it's Axios
+
 ```javascript
 import { apicase } from '@apicase/core'
 import fetch from '@apicase/adapter-fetch'
@@ -53,46 +56,59 @@ if (success) {
 ```
 
 ### Events-based requests handling
+
 Following _"Business logic failures are not exceptions"_ principle,  
 Apicase separates error handling from request fails:
+
 ```javascript
-doRequest({ url: '/api/posts' })
-  .on('done',  res => { console.log('Done', res) })
-  .on('fail',  res => { console.log('Fail', res) })
-  .on('error', err => { console.error(err) })
+doRequest({ url: "/api/posts" })
+  .on("done", res => {
+    console.log("Done", res)
+  })
+  .on("fail", res => {
+    console.log("Fail", res)
+  })
+  .on("error", err => {
+    console.error(err)
+  })
 ```
 
 ### Apicase services
+
 Move your API logic outside the main application code
+
 ```javascript
-import { ApiService } from '@apicase/core'
-import fetch from '@apicase/adapter-fetch'
+import { ApiService } from "@apicase/core"
+import fetch from "@apicase/adapter-fetch"
 
-const ApiRoot = new ApiService(fetch, { url: '/api' })
-  .on('done', logSucccess)
-  .on('fail', logFailure)
+const ApiRoot = new ApiService({
+  adapter: fetch,
+  url: "/api"
+})
+  .on("done", logSucccess)
+  .on("fail", logFailure)
 
-const AuthService = ApiRoot
-  .extend({ url: 'auth' })
-  .on('done', res => { 
-    localStorage.setItem('token', res.body.token) 
-   })
-   
+const AuthService = ApiRoot.extend({ url: "auth" }).on("done", res => {
+  localStorage.setItem("token", res.body.token)
+})
+
 AuthService.doRequest({
-  body: { login: 'Apicase', password: '*****' }
+  body: { login: "Apicase", password: "*****" }
 })
 ```
 
 ### Request queues
+
 Keep correct order of requests using queues
+
 ```javascript
-import { ApiQueue } from '@apicase/core'
+import { ApiQueue } from "@apicase/core"
 
 const queue = new ApiQueue()
 
-queue.push(SendMessage.doRequest, { body: { message: 'that stuff' } })
-queue.push(SendMessage.doRequest, { body: { message: 'really' } })
-queue.push(SendMessage.doRequest, { body: { message: 'works' } })
+queue.push(SendMessage.doRequest, { body: { message: "that stuff" } })
+queue.push(SendMessage.doRequest, { body: { message: "really" } })
+queue.push(SendMessage.doRequest, { body: { message: "works" } })
 ```
 
 ## TODO
