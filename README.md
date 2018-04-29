@@ -75,11 +75,12 @@ doRequest({ url: "/api/posts" })
 
 ### Apicase services
 
-Move your API logic outside the main application code
+Move your API logic outside the main application code  
+Check out `@apicase/services` [**repository**](https://github.com/apicase/services) and [**docs page**](https://kelin2025.gitbooks.io/apicase/content/anatomy/services.html) for more info
 
 ```javascript
-import { ApiService } from "@apicase/core"
 import fetch from "@apicase/adapter-fetch"
+import { ApiService } from "@apicase/services"
 
 const ApiRoot = new ApiService({
   adapter: fetch,
@@ -99,7 +100,8 @@ AuthService.doRequest({
 
 ### Request queues
 
-Keep correct order of requests using queues
+Keep correct order of requests using queues  
+Check out [**docs page**](https://kelin2025.gitbooks.io/apicase/content/anatomy/queues.html) for more info
 
 ```javascript
 import { ApiQueue } from "@apicase/core"
