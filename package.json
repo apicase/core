@@ -19,13 +19,13 @@
     "test": "jest",
     "check": "npm run lint && npm run test && npm run size",
     "build":
-      "babel lib --out-dir cjs --ignore test.js && babel lib --out-dir es --ignore test.js --no-babelrc --plugins=nanoutils --presets=env",
+      "BABEL_ENV=cjs babel lib --out-dir cjs --ignore test.js && BABEL_ENV=es babel lib --out-dir es --ignore test.js",
     "prepublish": "npm run build"
   },
   "size-limit": [
     {
       "path": "es/apicase.js",
-      "limit": "2 KB"
+      "limit": "2.1 KB"
     },
     {
       "path": "es/queue.js",
@@ -57,7 +57,6 @@
     "babel-core": "^6.26.0",
     "babel-jest": "^22.4.0",
     "babel-plugin-nanoutils": "^0.1.1",
-    "babel-plugin-transform-es2015-modules-simple-commonjs": "^0.3.0",
     "babel-plugin-transform-flow-comments": "^6.22.0",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.16.0",
