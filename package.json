@@ -49,7 +49,6 @@
     }
   ],
   "dependencies": {
-    "babel-plugin-transform-flow-comments": "^6.22.0",
     "nanoevents": "^1.0.2",
     "nanoutils": "^0.0.15"
   },
@@ -59,6 +58,7 @@
     "babel-jest": "^22.4.0",
     "babel-plugin-nanoutils": "^0.1.1",
     "babel-plugin-transform-es2015-modules-simple-commonjs": "^0.3.0",
+    "babel-plugin-transform-flow-comments": "^6.22.0",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.16.0",
     "eslint-config-standard": "^11.0.0-beta.0",
