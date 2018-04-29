@@ -18,7 +18,8 @@
     "size": "size-limit",
     "test": "jest",
     "check": "npm run lint && npm run test && npm run size",
-    "build": "babel lib --out-dir cjs --ignore test.js && babel lib --out-dir es --ignore test.js --no-babelrc --plugins=nanoutils",
+    "build":
+      "babel lib --out-dir cjs --ignore test.js && babel lib --out-dir es --ignore test.js --no-babelrc --plugins=nanoutils --presets=env",
     "prepublish": "npm run build"
   },
   "size-limit": [
@@ -40,7 +41,7 @@
     },
     {
       "path": "es/service.js",
-      "limit": "3 KB"
+      "limit": "4 KB"
     },
     {
       "path": "es/index.js",
