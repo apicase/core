@@ -18,13 +18,14 @@
     "size": "size-limit",
     "test": "jest",
     "check": "npm run lint && npm run test && npm run size",
-    "build": "BABEL_ENV=cjs babel lib --out-dir cjs --ignore test.js && BABEL_ENV=es babel lib --out-dir es --ignore test.js",
+    "build":
+      "BABEL_ENV=cjs babel lib --out-dir cjs --ignore test.js && BABEL_ENV=es babel lib --out-dir es --ignore test.js",
     "prepublish": "npm run build"
   },
   "size-limit": [
     {
       "path": "es/apicase.js",
-      "limit": "2.1 KB"
+      "limit": "2.5 KB"
     },
     {
       "path": "es/queue.js",
@@ -48,7 +49,7 @@
     }
   ],
   "dependencies": {
-    "nanoevents": "^1.0.2",
+    "delightful-bus": "^0.7.0",
     "nanoutils": "^0.0.15"
   },
   "devDependencies": {
