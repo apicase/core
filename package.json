@@ -1,6 +1,6 @@
 {
   "name": "@apicase/core",
-  "version": "0.14.4",
+  "version": "0.14.5",
   "description": "Core library to make API calls with any adapter",
   "main": "cjs/index.js",
   "module": "es/index.js",
@@ -48,7 +48,7 @@
     }
   ],
   "dependencies": {
-    "delightful-bus": "^0.7.2",
+    "delightful-bus": "^0.7.3",
     "nanoutils": "^0.0.15"
   },
   "devDependencies": {
