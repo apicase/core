@@ -48,7 +48,7 @@
     }
   ],
   "dependencies": {
-    "delightful-bus": "^0.7.0",
+    "delightful-bus": "^0.7.2",
     "nanoutils": "^0.0.15"
   },
   "devDependencies": {
