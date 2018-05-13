@@ -18,33 +18,14 @@
     "size": "size-limit",
     "test": "jest",
     "check": "npm run lint && npm run test && npm run size",
-    "build": "BABEL_ENV=cjs babel lib --out-dir cjs --ignore test.js && BABEL_ENV=es babel lib --out-dir es --ignore test.js",
+    "build":
+      "BABEL_ENV=cjs babel lib --out-dir cjs --ignore test.js && BABEL_ENV=es babel lib --out-dir es --ignore test.js",
     "prepublish": "npm run build"
   },
   "size-limit": [
     {
-      "path": "es/apicase.js",
-      "limit": "2.5 KB"
-    },
-    {
-      "path": "es/queue.js",
-      "limit": "2 KB"
-    },
-    {
-      "path": "es/normalize.js",
-      "limit": "1 KB"
-    },
-    {
-      "path": "es/merge.js",
-      "limit": "1 KB"
-    },
-    {
-      "path": "es/service.js",
-      "limit": "4 KB"
-    },
-    {
       "path": "es/index.js",
-      "limit": "5 KB"
+      "limit": "2.5 KB"
     }
   ],
   "dependencies": {
