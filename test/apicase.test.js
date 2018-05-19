@@ -1,14 +1,7 @@
-import { apicase } from '../lib/apicase'
 import { pick } from 'nanoutils'
+import { apicase } from '../lib/apicase'
 
-const pickState = pick([
-  'success',
-  'pending',
-  'started',
-  'cancelled',
-  'payload',
-  'result'
-])
+const pickState = pick(['success', 'pending', 'cancelled', 'payload', 'result'])
 
 const resolveAdapter = {
   callback: ({ payload, resolve }) => setTimeout(resolve, 25, payload)
@@ -36,10 +29,9 @@ describe('Calls', () => {
     expect(pickState(res)).toEqual({
       success: false,
       pending: true,
-      started: true,
       cancelled: false,
       payload: { a: 1 },
-      result: {}
+      result: null
     })
     await res
     done()
@@ -50,13 +42,13 @@ describe('Adapters', () => {
   it('has payload, result resolve and reject callbacks', done => {
     const callback = jest.fn(({ payload, result, resolve, reject }) => {
       expect(payload).toEqual({ a: 1 })
-      expect(result).toEqual({})
+      expect(result).toBe(null)
       expect(typeof resolve).toBe('function')
       expect(typeof reject).toBe('function')
-      setTimeout(resolve, 100, payload)
+      resolve(payload)
     })
 
-    apicase({ callback })({ a: 1 }).on('done', res => {
+    apicase({ callback })({ a: 1 }).on('finish', res => {
       done()
     })
   })
