@@ -19,6 +19,14 @@ Here is apicase—a unified way to create that isolated API layer.
 * **adapters** instead of concrete tools (fetch/xhr)
 * **services** with unlimited inheritance
 
+## Browser supports & restrictions
+
+Library sources are transpiled with [babel-preset-env](https://babeljs.io/docs/en/babel-preset-env/) but we don't add polyfills to our library to save its size and avoid code duplicates if your project already has polyfills.  
+So here's the list of features you need to know:
+- You have to add [Promises polyfill](https://www.npmjs.com/package/promise-polyfill) or use [babel-polyfill](https://www.npmjs.com/package/babel-polyfill) to work with IE 11 [**[caniuse]**](https://caniuse.com/#feat=promises)
+- Fetch is used in `@apicase/adapter-fetch`. You might need [fetch polyfill](https://github.com/github/fetch) to work with IE 11 or you  can just use `@apicase/adapter-xhr` [**[caniuse]**](https://caniuse.com/#feat=fetch)
+- AbortController is used in `@apicase/adapter-fetch` to implement `req.cancel()` and hasn't polyfills. Apicase will work well if AbortController is not supported but note that request just won't be really cancelled [**[caniuse]**](https://caniuse.com/#feat=abortcontroller)
+
 ## Documentation
 
 ### Full docs
