@@ -65,18 +65,18 @@ describe('Adapters', () => {
     })
   })
 
-  it('has setResult() callback to set new state', done => {
-    const createState = () => ({ a: 1, b: 2 })
-    const callback = jest.fn(({ payload, result, resolve, setResult }) => {
-      setResult({ b: 3 })
-      resolve(payload)
-    })
+  // it('has setResult() callback to set new state', done => {
+  //   const createState = () => ({ a: 1, b: 2 })
+  //   const callback = jest.fn(({ payload, result, resolve, setResult }) => {
+  //     setResult({ b: 3 })
+  //     resolve(payload)
+  //   })
 
-    apicase({ callback, createState })({ a: 2 }).on('done', res => {
-      expect(res).toEqual({ a: 2 })
-      done()
-    })
-  })
+  //   apicase({ callback, createState })({ a: 2 }).on('done', res => {
+  //     expect(res).toEqual({ a: 2 })
+  //     done()
+  //   })
+  // })
 
   it('converts payload before callback if convert() provided', done => {
     const convert = payload => ({ ...payload, a: 2 })
