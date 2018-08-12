@@ -31,7 +31,7 @@ So here's the list of features you need to know:
 
 ### Full docs
 
-[**Read on gitbook**](https://kelin2025.gitbooks.io/apicase/content/)
+[**Read on GitHub pages**](https://apicase.github.io)
 
 ### Basic request
 
