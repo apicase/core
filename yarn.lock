@@ -3685,9 +3685,9 @@ nan@^2.3.0:
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.8.0.tgz#ed715f3fe9de02b57a5e6252d90a96675e1f085a"
 
-nanoutils@^0.0.15:
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/nanoutils/-/nanoutils-0.0.15.tgz#8ee2ad5fcfd84a1d7714d32f93c5983f6559f23c"
+nanoutils@^0.0.30:
+  version "0.0.30"
+  resolved "https://registry.yarnpkg.com/nanoutils/-/nanoutils-0.0.30.tgz#2902cf1c34377ff7077c62a1ab5c6f0e59801ad5"
 
 natural-compare@^1.4.0:
   version "1.4.0"
