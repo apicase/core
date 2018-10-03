@@ -1,7 +1,14 @@
 {
   "name": "@apicase/core",
-  "version": "0.17.0",
+  "version": "0.17.2",
   "description": "Core library to make API calls with any adapter",
+  "keywords": [
+    "api",
+    "fetch",
+    "request",
+    "api layer",
+    "axios"
+  ],
   "main": "cjs/index.js",
   "module": "es/index.js",
   "private": false,
@@ -29,7 +36,7 @@
   ],
   "dependencies": {
     "delightful-bus": "^0.7.3",
-    "nanoutils": "^0.0.30"
+    "nanoutils": "^0.0.x"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
